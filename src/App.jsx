@@ -1,13 +1,51 @@
-import React from "react"
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
+import ProtectedRoute from "./components/ProtectedRoute";
+import Layout from "./components/Layout";
+
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Dashboard from "./pages/Dashboard";
+import AdminDashboard from "./pages/AdminDashboard";
+import SuperAdminLogin from "./pages/SuperAdminLogin"; // ✅
 
 function App() {
- 
-
   return (
-    <div className="App">
-      <h2 className="bg-red-700">Hello Knowalledge!!</h2>
-    </div>
-  )
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          {/* ✅ Routes with Layout */}
+          <Route path="/" element={<Layout />}>
+            <Route index element={<Home />} />
+            <Route path="login" element={<Login />} />
+            <Route path="register" element={<Register />} />
+
+            <Route
+              path="dashboard"
+              element={
+                <ProtectedRoute role="user">
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="admin"
+              element={
+                <ProtectedRoute role="superadmin">
+                  <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
+          </Route>
+
+          {/* ✅ Superadmin login OUTSIDE Layout */}
+          <Route path="/superadmin/login" element={<SuperAdminLogin />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
+  );
 }
 
-export default App
+export default App;
