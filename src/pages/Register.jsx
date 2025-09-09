@@ -1,15 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import useHttp from "../api/useHttp";
 
-
 const Register = () => {
-  const [userType, setUserType] = useState("student"); // "student" or "other"
+  const [userType, setUserType] = useState("student");
   const [formData, setFormData] = useState({
     name: "",
     mobile: "",
-    countryCode: "+91",
+    countryCode: "",
     email: "",
     dateOfBirth: "",
     gender: "",
@@ -18,31 +17,43 @@ const Register = () => {
     country: "",
     state: "",
     city: "",
-    schoolName: "", // Only for students
-    topics: [],
-    profilePic: null,
+    schoolName: "",
     termsAccepted: false
   });
+
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  
+  const [countryDetails, setCountryDetails] = useState([]); // ✅ new state for country codes
+  const [countryName, setCountryName] = useState([])
+
   const { login } = useAuth();
   const navigate = useNavigate();
   const { sendRequest, loading } = useHttp();
 
-  const topicsList = [
-    "Mathematics", "Science", "Technology", "Literature", "History", 
-    "Geography", "Arts", "Music", "Sports", "Programming"
-  ];
+  // ✅ Fetch countries on mount
+  useEffect(() => {
+    const fetchCountries = async () => {
+      try {
+        const response = await sendRequest("/locations/countries");
+        setCountryDetails(response.countries); // ✅ updated state name
 
-  const countryCodes = [
-    { code: "+91", country: "India" },
-    { code: "+1", country: "USA" },
-    { code: "+44", country: "UK" },
-    { code: "+86", country: "China" },
-    { code: "+81", country: "Japan" }
-  ];
+        console.log(response.countries);
+
+        if (!formData.countryCode && response.countries.length > 0) {
+          setFormData((prev) => ({
+            ...prev,
+            countryCode: ""
+          }));
+        }
+      } catch (error) {
+        console.error("Failed to load countries:", error);
+      }
+    };
+
+    fetchCountries();
+  }, []);
+
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -50,32 +61,19 @@ const Register = () => {
       ...prev,
       [name]: type === "checkbox" ? checked : value
     }));
-    
-    // Clear error when user starts typing
+
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: "" }));
     }
   };
 
-  const handleTopicToggle = (topic) => {
-    setFormData(prev => ({
-      ...prev,
-      topics: prev.topics.includes(topic)
-        ? prev.topics.filter(t => t !== topic)
-        : [...prev.topics, topic]
-    }));
-  };
 
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setFormData(prev => ({ ...prev, profilePic: file }));
-    }
-  };
+
+
 
   const validateForm = () => {
     const newErrors = {};
-    
+
     if (!formData.name.trim()) newErrors.name = "Name is required";
     if (!formData.mobile.trim()) newErrors.mobile = "Mobile number is required";
     if (!formData.email.trim()) newErrors.email = "Email is required";
@@ -94,14 +92,14 @@ const Register = () => {
     if (!formData.termsAccepted) {
       newErrors.termsAccepted = "Please accept terms and conditions";
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
 
     try {
@@ -112,9 +110,9 @@ const Register = () => {
         userType,
         isSchoolStudent: userType === "student"
       };
-      
+
       const data = await sendRequest(endpoint, "POST", requestData);
-      
+
       if (data) {
         login({
           email: data.email || formData.email,
@@ -133,7 +131,7 @@ const Register = () => {
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 relative overflow-hidden">
       {/* Aceternity UI Background Grid */}
       <div className="absolute inset-0  [background-size:50px_50px]" />
-      
+
       {/* Floating background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-blue-100/20 dark:bg-blue-900/20 rounded-full blur-3xl" />
@@ -163,22 +161,20 @@ const Register = () => {
               <button
                 type="button"
                 onClick={() => setUserType("student")}
-                className={`flex-1 py-3 px-6 rounded-xl font-semibold transition-all duration-300 ${
-                  userType === "student"
-                    ? "bg-blue-600 text-white shadow-lg"
-                    : "text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100"
-                }`}
+                className={`flex-1 py-3 px-6 rounded-xl font-semibold transition-all duration-300 ${userType === "student"
+                  ? "bg-blue-600 text-white shadow-lg"
+                  : "text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100"
+                  }`}
               >
                 School Student
               </button>
               <button
                 type="button"
                 onClick={() => setUserType("other")}
-                className={`flex-1 py-3 px-6 rounded-xl font-semibold transition-all duration-300 ${
-                  userType === "other"
-                    ? "bg-blue-600 text-white shadow-lg"
-                    : "text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100"
-                }`}
+                className={`flex-1 py-3 px-6 rounded-xl font-semibold transition-all duration-300 ${userType === "other"
+                  ? "bg-blue-600 text-white shadow-lg"
+                  : "text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100"
+                  }`}
               >
                 Others
               </button>
@@ -204,45 +200,62 @@ const Register = () => {
                   name="name"
                   value={formData.name}
                   onChange={handleInputChange}
-                  className={`w-full p-4 border rounded-xl bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
-                    errors.name ? "border-red-500" : "border-neutral-300 dark:border-neutral-700"
-                  }`}
+                  className={`w-full p-4 border rounded-xl bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${errors.name ? "border-red-500" : "border-neutral-300 dark:border-neutral-700"
+                    }`}
                   placeholder="Enter your full name"
                 />
                 {errors.name && <p className="mt-1 text-red-500 text-xs">{errors.name}</p>}
               </div>
 
-              {/* Mobile Number */}
+              {/* Mobile Number with Country Code */}
               <div>
                 <label className="block text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-2">
                   Mobile Number *
                 </label>
-                <div className="flex">
+                <div className="flex flex-col lg:flex-row gap-4 lg:gap-0">
+                  {/* Country Code Select */}
                   <select
                     name="countryCode"
                     value={formData.countryCode}
-                    onChange={handleInputChange}
-                    className="px-3 py-4 border border-r-0 rounded-l-xl bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 border-neutral-300 dark:border-neutral-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    onChange={(e) => {
+                      const selectedCode = e.target.value;
+                      setFormData((prev) => ({
+                        ...prev,
+                        countryCode: selectedCode
+                      }));
+
+                      if (errors.countryCode) {
+                        setErrors((prev) => ({ ...prev, countryCode: "" }));
+                      }
+                    }}
+                    className="w-full lg:w-1/3 px-3 py-4 border border-r-0 rounded-t-xl lg:rounded-l-xl lg:rounded-tr-none bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 border-neutral-300 dark:border-neutral-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
-                    {countryCodes.map(({ code, country }) => (
-                      <option key={code} value={code}>
-                        {code}
+                    <option value="">Select</option>
+                    {countryDetails.map(({ shortName, name, phone }) => (
+                      <option key={shortName} value={`+${phone}`}>
+                        {name} (+{phone})
                       </option>
                     ))}
                   </select>
+
+                  {/* Mobile Input */}
                   <input
                     type="tel"
                     name="mobile"
                     value={formData.mobile}
                     onChange={handleInputChange}
-                    className={`flex-1 p-4 border rounded-r-xl bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
-                      errors.mobile ? "border-red-500" : "border-neutral-300 dark:border-neutral-700"
-                    }`}
+                    className={`w-full lg:w-2/3 p-4 border rounded-b-xl lg:rounded-r-xl lg:rounded-bl-none bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${errors.mobile
+                        ? "border-red-500"
+                        : "border-neutral-300 dark:border-neutral-700"
+                      }`}
                     placeholder="Enter mobile number"
                   />
                 </div>
-                {errors.mobile && <p className="mt-1 text-red-500 text-xs">{errors.mobile}</p>}
+                {errors.mobile && (
+                  <p className="mt-1 text-red-500 text-xs">{errors.mobile}</p>
+                )}
               </div>
+
 
               {/* Email */}
               <div>
@@ -254,9 +267,8 @@ const Register = () => {
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className={`w-full p-4 border rounded-xl bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
-                    errors.email ? "border-red-500" : "border-neutral-300 dark:border-neutral-700"
-                  }`}
+                  className={`w-full p-4 border rounded-xl bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${errors.email ? "border-red-500" : "border-neutral-300 dark:border-neutral-700"
+                    }`}
                   placeholder="Enter email address"
                 />
                 {errors.email && <p className="mt-1 text-red-500 text-xs">{errors.email}</p>}
@@ -273,9 +285,8 @@ const Register = () => {
                     name="dateOfBirth"
                     value={formData.dateOfBirth}
                     onChange={handleInputChange}
-                    className={`w-full p-4 border rounded-xl bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
-                      errors.dateOfBirth ? "border-red-500" : "border-neutral-300 dark:border-neutral-700"
-                    }`}
+                    className={`w-full p-4 border rounded-xl bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${errors.dateOfBirth ? "border-red-500" : "border-neutral-300 dark:border-neutral-700"
+                      }`}
                   />
                   {errors.dateOfBirth && <p className="mt-1 text-red-500 text-xs">{errors.dateOfBirth}</p>}
                 </div>
@@ -288,9 +299,8 @@ const Register = () => {
                     name="gender"
                     value={formData.gender}
                     onChange={handleInputChange}
-                    className={`w-full p-4 border rounded-xl bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
-                      errors.gender ? "border-red-500" : "border-neutral-300 dark:border-neutral-700"
-                    }`}
+                    className={`w-full p-4 border rounded-xl bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${errors.gender ? "border-red-500" : "border-neutral-300 dark:border-neutral-700"
+                      }`}
                   >
                     <option value="">Select Gender</option>
                     <option value="male">Male</option>
@@ -313,9 +323,8 @@ const Register = () => {
                       name="password"
                       value={formData.password}
                       onChange={handleInputChange}
-                      className={`w-full p-4 pr-12 border rounded-xl bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
-                        errors.password ? "border-red-500" : "border-neutral-300 dark:border-neutral-700"
-                      }`}
+                      className={`w-full p-4 pr-12 border rounded-xl bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${errors.password ? "border-red-500" : "border-neutral-300 dark:border-neutral-700"
+                        }`}
                       placeholder="Create password"
                     />
                     <button
@@ -339,9 +348,8 @@ const Register = () => {
                       name="confirmPassword"
                       value={formData.confirmPassword}
                       onChange={handleInputChange}
-                      className={`w-full p-4 pr-12 border rounded-xl bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
-                        errors.confirmPassword ? "border-red-500" : "border-neutral-300 dark:border-neutral-700"
-                      }`}
+                      className={`w-full p-4 pr-12 border rounded-xl bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${errors.confirmPassword ? "border-red-500" : "border-neutral-300 dark:border-neutral-700"
+                        }`}
                       placeholder="Confirm password"
                     />
                     <button
@@ -367,9 +375,8 @@ const Register = () => {
                     name="country"
                     value={formData.country}
                     onChange={handleInputChange}
-                    className={`w-full p-4 border rounded-xl bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
-                      errors.country ? "border-red-500" : "border-neutral-300 dark:border-neutral-700"
-                    }`}
+                    className={`w-full p-4 border rounded-xl bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${errors.country ? "border-red-500" : "border-neutral-300 dark:border-neutral-700"
+                      }`}
                     placeholder="Country"
                   />
                   {errors.country && <p className="mt-1 text-red-500 text-xs">{errors.country}</p>}
@@ -384,9 +391,8 @@ const Register = () => {
                     name="state"
                     value={formData.state}
                     onChange={handleInputChange}
-                    className={`w-full p-4 border rounded-xl bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
-                      errors.state ? "border-red-500" : "border-neutral-300 dark:border-neutral-700"
-                    }`}
+                    className={`w-full p-4 border rounded-xl bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${errors.state ? "border-red-500" : "border-neutral-300 dark:border-neutral-700"
+                      }`}
                     placeholder="State"
                   />
                   {errors.state && <p className="mt-1 text-red-500 text-xs">{errors.state}</p>}
@@ -401,9 +407,8 @@ const Register = () => {
                     name="city"
                     value={formData.city}
                     onChange={handleInputChange}
-                    className={`w-full p-4 border rounded-xl bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
-                      errors.city ? "border-red-500" : "border-neutral-300 dark:border-neutral-700"
-                    }`}
+                    className={`w-full p-4 border rounded-xl bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${errors.city ? "border-red-500" : "border-neutral-300 dark:border-neutral-700"
+                      }`}
                     placeholder="City"
                   />
                   {errors.city && <p className="mt-1 text-red-500 text-xs">{errors.city}</p>}
@@ -421,9 +426,8 @@ const Register = () => {
                     name="schoolName"
                     value={formData.schoolName}
                     onChange={handleInputChange}
-                    className={`w-full p-4 border rounded-xl bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
-                      errors.schoolName ? "border-red-500" : "border-neutral-300 dark:border-neutral-700"
-                    }`}
+                    className={`w-full p-4 border rounded-xl bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${errors.schoolName ? "border-red-500" : "border-neutral-300 dark:border-neutral-700"
+                      }`}
                     placeholder="Enter your school name"
                   />
                   {errors.schoolName && <p className="mt-1 text-red-500 text-xs">{errors.schoolName}</p>}
@@ -431,7 +435,7 @@ const Register = () => {
               )}
 
               {/* Topics Interest */}
-              <div>
+              {/* <div>
                 <label className="block text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-4">
                   Topics of Interest
                 </label>
@@ -451,10 +455,10 @@ const Register = () => {
                     </button>
                   ))}
                 </div>
-              </div>
+              </div> */}
 
               {/* Profile Picture */}
-              <div>
+              {/* <div>
                 <label className="block text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-2">
                   Profile Picture
                 </label>
@@ -479,7 +483,7 @@ const Register = () => {
                     className="block w-full text-sm text-neutral-500 dark:text-neutral-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                   />
                 </div>
-              </div>
+              </div> */}
 
               {/* Terms & Conditions */}
               <div>
