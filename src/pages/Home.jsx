@@ -86,7 +86,7 @@ const Home = () => {
           >
             <div className="relative">
               <h1 className="text-6xl md:text-8xl font-black mb-6 text-white tracking-tight">
-                KNOWLEDGE
+                KNOWALLEDGE
                 <span className="absolute -top-2 -right-2 w-4 h-4 bg-blue-500 rounded-full animate-pulse" />
               </h1>
               <div className="absolute inset-0 bg-blue-500/10 blur-3xl -z-10" />
@@ -225,7 +225,7 @@ const Home = () => {
               LEVEL UP 🎯
             </h2>
             <p className="text-xl text-gray-400">
-              Test your knowledge and compete with peers
+              Test your KNOWALLEDGE and compete with peers
             </p>
           </div>
 
