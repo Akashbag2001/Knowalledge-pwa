@@ -21,6 +21,9 @@ const Register = () => {
     city: "",
     schoolName: "",
     termsAccepted: false,
+    newSchoolName: "",
+
+    dateOfBirth: ""
   });
 
   const [errors, setErrors] = useState({});
@@ -36,6 +39,9 @@ const Register = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
   const { sendRequest, loading } = useHttp();
+  const [schools, setSchools] = useState([]);
+  const [loadingSchools, setLoadingSchools] = useState(false);
+  const [dobRaw, setDobRaw] = useState("");
 
   // ✅ Fetch countries on mount
   useEffect(() => {
@@ -148,56 +154,68 @@ const Register = () => {
   // ✅ Submit
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Submit clicked", { formData, isverified, valid: isFormValid() });
 
-    if (!validateForm()) {
-      console.log("validateForm failed");
-      return;
-    }
-    if (!isverified) {
-      toast.error("❌ Please verify your email before registering.");
-      return;
-    }
-    if (!isFormValid()) {
-      toast.error("❌ Please fill all required fields correctly.");
-      return;
-    }
+    // validate the form
+    // if (!validateForm()) return;
+
+    // if (!isverified) {
+    //   toast.error("❌ Please verify your email before registering.");
+    //   return;
+    // }
+
+    // if (!isFormValid()) {
+    //   toast.error("❌ Please fill all required fields correctly.");
+    //   return;
+    // }
 
     try {
-      console.log("Sending request...");
-      const endpoint =
-        userType === "student" ? "/auth/register-student" : "/auth/register-other";
-
       const requestData = {
-        ...formData,
-        mobile: formData.countryCode + formData.mobile,
-        userType,
-        isSchoolStudent: userType === "student",
+        name: formData.name,
+        mobileNumber: formData.countryCode + formData.mobile,
+        email: formData.email,
+        gender: formData.gender,
+        password: formData.password,
+        dateOfBirth: formData.dateOfBirth,
+        country: formData.country,
+        state: formData.state,
+        city: formData.city,
+        schoolName: formData.schoolName === "Others" ? "Others" : formData.schoolName,
+        newSchoolName: formData.schoolName === "Others" ? formData.newSchoolName : "",
+
       };
 
-      const data = await sendRequest(endpoint, "POST", requestData);
+      const data = await sendRequest("/user/signup", "POST", requestData);
 
       if (data) {
-        console.log("Success:", data);
+        toast.success("Registration successful!", {
+         
+        });
         login({
           email: data.email || formData.email,
           name: data.name || formData.name,
           role: "user",
           token: data.token,
         });
-        navigate("/dashboard");
+        navigate("/login");
       }
     } catch (err) {
-      console.error("Error:", err);
-      toast.error(err.message || "Registration failed");
       setErrors({ submit: err.message || "Registration failed" });
+      toast.error("Registration failed!", {
+        
+      })
     }
   };
 
 
 
-
-  // Step 1: Send OTP
+  const fetchSchools = async () => {
+    try {
+      const data = await sendRequest("/school/getSchool", "GET");
+      setSchools(data?.schools || []);
+    } catch (err) {
+      console.error("Failed to fetch schools:", err.message);
+    }
+  };
 
 
   const handleSendOtp = async () => {
@@ -239,42 +257,47 @@ const Register = () => {
 
   const isFormValid = () => {
     return (
-      formData.name?.trim()!== "" &&
-      formData.email?.trim()!== "" &&
+      formData.name?.trim() !== "" &&
+      formData.email?.trim() !== "" &&
       isverified && // ✅ email must be verified
-      formData.password?.trim()!== "" &&
-      formData.confirmPassword?.trim()!== "" &&
-      formData.countryShortName?.trim()!== "" &&
-      formData.state?.trim()!== "" &&
-      formData.city?.trim()!== "" &&
-      (userType === "other" || formData.schoolName?.trim()!== "") && // School name only for student
+      formData.password?.trim() !== "" &&
+      formData.confirmPassword?.trim() !== "" &&
+      formData.countryShortName?.trim() !== "" &&
+      formData.state?.trim() !== "" &&
+      formData.city?.trim() !== "" &&
+      (userType === "other" || formData.schoolName?.trim() !== "") && // School name only for student
       formData.termsAccepted
     );
   };
 
 
-useEffect(() => {
-  setFormData((prev) => ({
-     name: "",
-  mobile: "",
-  countryCode: "",
-  email: "",
-  dateOfBirth: "",
-  gender: "",
-  password: "",
-  confirmPassword: "",
-  countryShortName: "", // keep only this
-  state: "",
-  city: "",
-  schoolName: "",
-  termsAccepted: false,
-  }));
-  setStates([]);
-  setCities([]);
-  setIsVerifying(false);
-  setIsverified(false);
-  setOtp("");
-}, [userType]);
+  useEffect(() => {
+    setFormData((prev) => ({
+      name: "",
+      mobile: "",
+      countryCode: "",
+      email: "",
+      dateOfBirth: "",
+      gender: "",
+      password: "",
+      confirmPassword: "",
+      countryShortName: "", // keep only this
+      state: "",
+      city: "",
+      schoolName: "",
+      dateOfBirth: "",
+      termsAccepted: false,
+    }));
+    setStates([]);
+    setCities([]);
+    setIsVerifying(false);
+    setIsverified(false);
+    setOtp("");
+
+    if (userType === "student") {
+      fetchSchools();
+    }
+  }, [userType]);
 
 
 
@@ -334,7 +357,7 @@ useEffect(() => {
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form className="space-y-6">
               {/* Name */}
               <div>
                 <label className="block text-sm font-semibold mb-2">Full Name *</label>
@@ -349,6 +372,52 @@ useEffect(() => {
                 />
                 {errors.name && <p className="mt-1 text-red-500 text-xs">{errors.name}</p>}
               </div>
+              {/* Gender Dropdown */}
+              <div>
+                <label className="block text-sm font-semibold mb-2">Gender *</label>
+                <select
+                  name="gender"
+                  value={formData.gender}
+                  onChange={handleInputChange}
+                  className={`w-full p-4 border rounded-xl bg-neutral-800 text-neutral-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${errors.gender ? "border-red-500" : "border-neutral-700"}`}
+                >
+                  <option value="">Select Gender</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Others">Others</option>
+                </select>
+                {errors.gender && <p className="mt-1 text-red-500 text-xs">{errors.gender}</p>}
+              </div>
+              {/* Date of Birth */}
+              <div>
+                <label className="block text-sm font-semibold mb-2">Date of Birth *</label>
+                <input
+                  type="date"
+                  name="dateOfBirth"
+                  value={dobRaw} // keep YYYY-MM-DD for input
+                  onChange={(e) => {
+                    const rawValue = e.target.value; // YYYY-MM-DD
+                    setDobRaw(rawValue);
+
+                    // Convert to JS Date object (backend-friendly)
+                    const [year, month, day] = rawValue.split("-");
+                    const dobDate = new Date(year, month - 1, day); // JS Date: month is 0-indexed
+
+                    setFormData((prev) => ({
+                      ...prev,
+                      dateOfBirth: dobDate, // send Date object to backend
+                    }));
+
+                    // Clear any previous errors
+                    if (errors.dateOfBirth) setErrors((prev) => ({ ...prev, dateOfBirth: "" }));
+                  }}
+                  className={`w-full p-4 border rounded-xl bg-neutral-800 text-neutral-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${errors.dateOfBirth ? "border-red-500" : "border-neutral-700"
+                    }`}
+                />
+                {errors.dateOfBirth && <p className="mt-1 text-red-500 text-xs">{errors.dateOfBirth}</p>}
+              </div>
+
+
 
               {/* Mobile Number */}
               <div>
@@ -539,22 +608,59 @@ useEffect(() => {
               {userType === "student" && (
                 <div>
                   <label className="block text-sm font-semibold mb-2">School Name *</label>
-                  <input
-                    type="text"
+                  <select
                     name="schoolName"
                     value={formData.schoolName}
-                    onChange={handleInputChange}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setFormData((prev) => ({
+                        ...prev,
+                        schoolName: value,
+                        newSchoolName: value === "Others" ? "" : prev.newSchoolName || "",
+                      }));
+                    }}
+                    disabled={loadingSchools || schools.length === 0}
                     className={`w-full p-4 border rounded-xl bg-neutral-800 text-neutral-100 
-        focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all 
-        ${errors.schoolName ? "border-red-500" : "border-neutral-700"}`}
-                    placeholder="Enter your school name"
-                  />
+      ${errors.schoolName ? "border-red-500" : "border-neutral-700"}`}
+                  >
+                    <option value="">
+                      {loadingSchools ? "Loading schools..." : "Select your school"}
+                    </option>
+                    {schools.map((school) => (
+                      <option key={school.id} value={school.name}>
+                        {school.name}
+                      </option>
+                    ))}
+                    <option value="Others">Others</option>
+                  </select>
+
+                  {/* Show input only if "Others" is selected */}
+                  {formData.schoolName === "Others" && (
+                    <div className="mt-2">
+                      <input
+                        type="text"
+                        name="newSchoolName"
+                        value={formData.newSchoolName || ""}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            newSchoolName: e.target.value,
+                            schoolName: "Others",
+                          }))
+                        }
+                        placeholder="Enter your school name"
+                        className="w-full p-4 border rounded-xl bg-neutral-800 text-neutral-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      />
+                    </div>
+                  )}
+
                   {errors.schoolName && (
                     <p className="mt-1 text-red-500 text-xs">{errors.schoolName}</p>
                   )}
                 </div>
-
               )}
+
+
 
               {/* Terms */}
               <div>
@@ -586,7 +692,7 @@ useEffect(() => {
               <button
                 type="submit"
                 disabled={loading || !isFormValid()}
-
+                onClick={handleSubmit}
                 className="w-full cursor-pointer bg-blue-600 hover:bg-blue-700 disabled:bg-neutral-700 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 flex items-center justify-center gap-2"
               >
                 {loading ? (

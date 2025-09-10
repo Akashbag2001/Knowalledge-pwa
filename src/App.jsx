@@ -14,7 +14,30 @@ import SuperAdminLogin from "./pages/SuperAdminLogin"; // ✅
 function App() {
   return (
     <AuthProvider>
-      <ToastContainer position="top-right" autoClose={3000} />
+      <ToastContainer
+  position="top-center"
+  autoClose={3000}
+  hideProgressBar={false}
+  newestOnTop={false}
+  closeOnClick
+  rtl={false}
+  pauseOnFocusLoss
+  draggable
+  pauseOnHover
+  // style={{
+  //   width: "auto",
+  //   maxWidth: "350px",
+  //   backgroundColor: "#1E2D5B", // dark blue background
+  //   color: "#F3F4F6", // light text
+  //   fontWeight: "600",
+  //   fontSize: "14px",
+  //   borderRadius: "12px",
+  //   boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
+  //   padding: "12px 20px",
+  //   border: "1px solid #3B4A8F",
+  //   textAlign: "center",
+  // }}
+/>
       <BrowserRouter>
         <Routes>
           {/* ✅ Routes with Layout */}
