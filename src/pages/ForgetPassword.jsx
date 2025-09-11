@@ -11,13 +11,12 @@ const ForgetPassword = () => {
   const [otpSent, setOtpSent] = useState(false);
   const [otp, setOtp] = useState("");
 
-  // Send OTP API call
+  // Step 1: Send OTP (email only)
   const handleSendOtp = async () => {
     if (!email.trim()) {
       toast.error("Email is required");
       return;
     }
-
     try {
       const res = await sendRequest("/user/forgetPassword", "POST", { email });
       if (res.success) {
@@ -31,23 +30,20 @@ const ForgetPassword = () => {
     }
   };
 
-  // Verify OTP API call
+  // Step 2: Verify OTP (email + otp)
   const handleVerifyOtp = async () => {
     if (!otp || otp.length !== 6) {
       toast.error("Enter a valid 6-digit OTP");
       return;
     }
-
     try {
-      const res = await sendRequest(
-        "/user/verifyForgetPasswordOTP",
-        "POST",
-        { email, otp }
-      );
-
+      const res = await sendRequest("/user/forgetPassword", "POST", {
+        email,
+        otp,
+      });
       if (res.success) {
-        toast.success("✅ OTP verified, proceed to reset password");
-        // pass email forward to reset password page
+        toast.success("✅ OTP verified, set new password");
+        // 👉 pass email to ResetPassword page
         navigate("/reset-password", { state: { email } });
       } else {
         toast.error(res.message || "Invalid OTP");
@@ -73,13 +69,13 @@ const ForgetPassword = () => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-4 border rounded-xl bg-neutral-800 text-neutral-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent mb-4"
+              className="w-full p-4 border rounded-xl bg-neutral-800 text-neutral-100 mb-4"
               placeholder="Enter your registered email"
             />
             <button
               onClick={handleSendOtp}
               disabled={loading}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 disabled:opacity-50"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-6 rounded-xl"
             >
               {loading ? "Sending..." : "Send OTP"}
             </button>
@@ -94,14 +90,15 @@ const ForgetPassword = () => {
               maxLength={6}
               value={otp}
               onChange={(e) => setOtp(e.target.value)}
-              className="w-full p-4 border rounded-xl bg-neutral-800 text-neutral-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent mb-4"
+              className="w-full p-4 border rounded-xl bg-neutral-800 text-neutral-100 mb-4"
               placeholder="6-digit OTP"
             />
             <button
               onClick={handleVerifyOtp}
-              className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300"
+              disabled={loading}
+              className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-4 px-6 rounded-xl"
             >
-              Verify OTP
+              {loading ? "Verifying..." : "Verify OTP"}
             </button>
           </>
         )}
