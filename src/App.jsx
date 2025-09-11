@@ -10,34 +10,36 @@ import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import SuperAdminLogin from "./pages/SuperAdminLogin"; // ✅
+import ForgetPassword from "./pages/ForgetPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 function App() {
   return (
     <AuthProvider>
       <ToastContainer
-  position="top-center"
-  autoClose={3000}
-  hideProgressBar={false}
-  newestOnTop={false}
-  closeOnClick
-  rtl={false}
-  pauseOnFocusLoss
-  draggable
-  pauseOnHover
-  // style={{
-  //   width: "auto",
-  //   maxWidth: "350px",
-  //   backgroundColor: "#1E2D5B", // dark blue background
-  //   color: "#F3F4F6", // light text
-  //   fontWeight: "600",
-  //   fontSize: "14px",
-  //   borderRadius: "12px",
-  //   boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
-  //   padding: "12px 20px",
-  //   border: "1px solid #3B4A8F",
-  //   textAlign: "center",
-  // }}
-/>
+        position="top-center"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      // style={{
+      //   width: "auto",
+      //   maxWidth: "350px",
+      //   backgroundColor: "#1E2D5B", // dark blue background
+      //   color: "#F3F4F6", // light text
+      //   fontWeight: "600",
+      //   fontSize: "14px",
+      //   borderRadius: "12px",
+      //   boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
+      //   padding: "12px 20px",
+      //   border: "1px solid #3B4A8F",
+      //   textAlign: "center",
+      // }}
+      />
       <BrowserRouter>
         <Routes>
           {/* ✅ Routes with Layout */}
@@ -45,7 +47,8 @@ function App() {
             <Route index element={<Home />} />
             <Route path="login" element={<Login />} />
             <Route path="register" element={<Register />} />
-
+            <Route path="/forget-password" element={<ForgetPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route
               path="dashboard"
               element={
