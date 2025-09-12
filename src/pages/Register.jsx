@@ -29,6 +29,7 @@ const Register = () => {
   const [errors, setErrors] = useState({});
   // states
   const [showPassword, setShowPassword] = useState(false);
+  const [loadingOtp, setLoadingOtp] = useState(false);
 
 
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -222,15 +223,30 @@ const Register = () => {
 
 
   const handleSendOtp = async () => {
+    if (!formData.email) {
+      toast.error("Email is required");
+      return;
+    }
+
     try {
-      await sendEmailOtp(formData.email);
-      setIsVerifying(true);
-      toast.info("📩 OTP sent to your email!");
-    } catch {
-      toast.error("❌ Failed to send OTP. Try again.");
-      setIsVerifying(false);
+      setLoadingOtp(true);
+      const res = await sendRequest("/user/forgetPassword", "POST", {
+        email: formData.email,
+      });
+
+      if (res?.success) {
+        toast.success("✅ OTP sent to your email!");
+        setIsVerifying(true); // 👈 this will open OTP input field
+      } else {
+        toast.error("❌ Failed to send OTP");
+      }
+    } catch (err) {
+      toast.error(err.message || "❌ Something went wrong");
+    } finally {
+      setLoadingOtp(false);
     }
   };
+
 
   const handleConfirmOtp = async () => {
     try {
@@ -470,9 +486,14 @@ const Register = () => {
                   <button
                     type="button"
                     onClick={handleSendOtp}
-                    className="px-4 py-2 cursor-pointer bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl transition-all duration-300"
+                    disabled={loadingOtp}
+                    className="w-1/4 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 flex justify-center items-center gap-2 disabled:opacity-50"
                   >
-                    Verify
+                    {loadingOtp ? (
+                      <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent" />
+                    ) : (
+                      "Verify"
+                    )}
                   </button>
                 </div>
                 {errors.email && <p className="mt-1 text-red-500 text-xs">{errors.email}</p>}
@@ -504,7 +525,7 @@ const Register = () => {
                     }}
                     disabled={otp.length !== 6 || loading}
                     className="mt-3 w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 
-      disabled:opacity-50 text-white font-semibold rounded-xl transition-all duration-300"
+      disabled:opacity-50 text-white font-semibold rounded-xl cursor-pointer transition-all duration-300"
                   >
                     {loading ? "Verifying..." : "Confirm OTP"}
                   </button>

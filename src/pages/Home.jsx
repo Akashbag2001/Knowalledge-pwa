@@ -77,37 +77,35 @@ const Home = () => {
 
       <div className="relative z-10 space-y-20 px-4 sm:px-6 lg:px-8">
         {/* Hero */}
-        <section className="min-h-screen flex items-center justify-center text-center relative">
+        <section className="min-h-screen flex items-center justify-center text-center relative px-4 sm:px-6">
           <div
             className="transform transition-all duration-1000 max-w-6xl mx-auto"
-            style={{
-              transform: `translateY(${scrollY * 0.3}px)`,
-            }}
+            style={{ transform: `translateY(${scrollY * 0.3}px)` }}
           >
             <div className="relative">
-              <h1 className="text-6xl md:text-8xl font-black mb-6 text-white tracking-tight">
+              <h1 className="text-4xl sm:text-6xl md:text-8xl font-black mb-6 text-white tracking-tight">
                 KNOWALLEDGE
-                <span className="absolute -top-2 -right-2 w-4 h-4 bg-blue-500 rounded-full animate-pulse" />
+                <span className="absolute -top-2 -right-2 w-3 sm:w-4 h-3 sm:h-4 bg-blue-500 rounded-full animate-pulse" />
               </h1>
               <div className="absolute inset-0 bg-blue-500/10 blur-3xl -z-10" />
             </div>
 
-            <h2 className="text-2xl md:text-4xl font-semibold mb-8 text-gray-400">
+            <h2 className="text-lg sm:text-2xl md:text-4xl font-semibold mb-6 sm:mb-8 text-gray-400">
               Where Learning Meets Innovation 🚀
             </h2>
-            <p className="text-lg md:text-xl mb-12 max-w-3xl mx-auto text-gray-500 leading-relaxed">
+            <p className="text-base sm:text-lg md:text-xl mb-8 sm:mb-12 max-w-3xl mx-auto text-gray-500 leading-relaxed px-2">
               Dive into the future of education with interactive quizzes, news,
               and a community that never stops growing. ✨
             </p>
 
             {!user ? (
-              <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
+              <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center">
                 <Link
                   to="/login"
-                  className="group px-8 py-4 bg-white text-black rounded-2xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+                  className="group px-6 sm:px-8 py-3 sm:py-4 bg-white text-black rounded-2xl font-semibold text-base sm:text-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 w-full sm:w-auto text-center"
                 >
-                  <span className="flex items-center gap-2">
-                    Login 🌌
+                  <span className="flex items-center justify-center gap-2">
+                    Login 
                     <svg
                       className="w-4 h-4 group-hover:translate-x-1 transition-transform"
                       fill="none"
@@ -125,10 +123,10 @@ const Home = () => {
                 </Link>
                 <Link
                   to="/register"
-                  className="group px-8 py-4 border-2 border-gray-700 rounded-2xl font-semibold text-lg text-gray-300 hover:bg-gray-800 transition-all duration-300 hover:-translate-y-1"
+                  className="group px-6 sm:px-8 py-3 sm:py-4 border-2 border-gray-700 rounded-2xl font-semibold text-base sm:text-lg text-gray-300 hover:bg-gray-800 transition-all duration-300 hover:-translate-y-1 w-full sm:w-auto text-center"
                 >
-                  <span className="flex items-center gap-2">
-                    Register 🔥
+                  <span className="flex items-center justify-center gap-2">
+                    Register 
                     <svg
                       className="w-4 h-4 group-hover:translate-x-1 transition-transform"
                       fill="none"
@@ -148,7 +146,7 @@ const Home = () => {
             ) : (
               <Link
                 to={user.role === "superadmin" ? "/admin" : "/dashboard"}
-                className="group inline-flex items-center gap-2 px-8 py-4 bg-emerald-600 text-white rounded-2xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+                className="group inline-flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-4 bg-emerald-600 text-white rounded-2xl font-semibold text-base sm:text-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
               >
                 Access Control Panel 🎮
                 <svg
@@ -175,25 +173,25 @@ const Home = () => {
             <h2 className="text-4xl md:text-6xl font-black mb-4 text-amber-500 tracking-tight">
               TRENDING NOW 📰
             </h2>
-            <p className="text-xl text-gray-400">
+            <p className="text-lg sm:text-xl text-gray-400">
               Stay plugged into what's happening around campus
             </p>
           </div>
 
           <div className="overflow-hidden">
-            <div className="flex gap-6 animate-scroll hover:[animation-play-state:paused]">
+            <div className="flex gap-4 sm:gap-6 animate-scroll hover:[animation-play-state:paused] px-2">
               {news.concat(news).map((item, index) => (
                 <div
                   key={index}
-                  className="group min-w-[320px] bg-[#111] rounded-2xl shadow-sm border border-gray-800 p-6 hover:shadow-lg hover:border-gray-700 transition-all duration-300 hover:-translate-y-1"
+                  className="group min-w-[260px] sm:min-w-[320px] bg-[#111] rounded-2xl shadow-sm border border-gray-800 p-4 sm:p-6 hover:shadow-lg hover:border-gray-700 transition-all duration-300 hover:-translate-y-1"
                 >
-                  <div className="px-3 py-1 bg-blue-900/50 text-blue-300 text-sm font-medium rounded-full mb-3">
+                  <div className="px-3 py-1 bg-blue-900/50 text-blue-300 text-xs sm:text-sm font-medium rounded-full mb-3">
                     {item.category}
                   </div>
-                  <h3 className="text-lg font-bold mb-3 text-white group-hover:text-blue-400 transition-colors">
+                  <h3 className="text-base sm:text-lg font-bold mb-3 text-white group-hover:text-blue-400 transition-colors">
                     {item.title}
                   </h3>
-                  <p className="text-gray-400 text-sm mb-4 leading-relaxed">
+                  <p className="text-gray-400 text-xs sm:text-sm mb-4 leading-relaxed">
                     {item.description}
                   </p>
                   <div className="flex items-center text-xs text-gray-500">
@@ -224,25 +222,25 @@ const Home = () => {
             <h2 className="text-4xl md:text-6xl font-black mb-4 text-emerald-500 tracking-tight">
               LEVEL UP 🎯
             </h2>
-            <p className="text-xl text-gray-400">
+            <p className="text-lg sm:text-xl text-gray-400">
               Test your KNOWALLEDGE and compete with peers
             </p>
           </div>
 
           <div className="overflow-hidden">
-            <div className="flex gap-6 animate-scroll hover:[animation-play-state:paused]">
+            <div className="flex gap-4 sm:gap-6 animate-scroll hover:[animation-play-state:paused] px-2">
               {quizzes.concat(quizzes).map((quiz, index) => (
                 <div
                   key={index}
-                  className="group min-w-[300px] bg-[#111] rounded-2xl shadow-sm border border-gray-800 p-6 hover:shadow-lg hover:border-gray-700 transition-all duration-300 hover:-translate-y-1"
+                  className="group min-w-[260px] sm:min-w-[300px] bg-[#111] rounded-2xl shadow-sm border border-gray-800 p-4 sm:p-6 hover:shadow-lg hover:border-gray-700 transition-all duration-300 hover:-translate-y-1"
                 >
-                  <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <div className="text-3xl sm:text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">
                     {quiz.emoji}
                   </div>
-                  <h3 className="text-lg font-bold mb-3 text-white">
+                  <h3 className="text-base sm:text-lg font-bold mb-3 text-white">
                     {quiz.title}
                   </h3>
-                  <div className="flex items-center gap-4 text-gray-400 text-sm mb-6">
+                  <div className="flex items-center gap-3 sm:gap-4 text-gray-400 text-xs sm:text-sm mb-6">
                     <span className="flex items-center gap-1">
                       <svg
                         className="w-4 h-4"
@@ -257,7 +255,7 @@ const Home = () => {
                           d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                         />
                       </svg>
-                      {quiz.questions} Questions
+                      {quiz.questions} Qs
                     </span>
                     <span className="flex items-center gap-1">
                       <svg
@@ -278,7 +276,7 @@ const Home = () => {
                   </div>
                   <Link
                     to={user ? "/quiz" : "/login"}
-                    className="group/btn flex items-center justify-center gap-2 w-full py-3 bg-emerald-600 text-white rounded-xl font-semibold hover:bg-emerald-700 transition-all duration-300 hover:-translate-y-0.5"
+                    className="group/btn flex items-center justify-center gap-2 w-full py-2.5 sm:py-3 bg-emerald-600 text-white rounded-xl font-semibold text-sm sm:text-base hover:bg-emerald-700 transition-all duration-300 hover:-translate-y-0.5"
                   >
                     {user ? "Start Challenge 🚀" : "Login to Play 🎮"}
                     <svg

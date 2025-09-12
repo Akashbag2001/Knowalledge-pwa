@@ -95,7 +95,7 @@ const Layout = () => {
             <div className="hidden md:flex items-center space-x-2">
               <button
                 onClick={() => navigate("/")}
-                className="relative px-4 py-2 text-neutral-400 hover:text-blue-400 transition-all duration-300 rounded-xl hover:bg-neutral-800"
+                className="relative px-4 py-2 cursor-pointer text-neutral-400 hover:text-blue-400 transition-all duration-300 rounded-xl hover:bg-neutral-800"
               >
                 Home
               </button>
