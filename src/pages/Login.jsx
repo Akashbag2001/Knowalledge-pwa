@@ -7,7 +7,7 @@ import { useAuth } from "../context/AuthContext"; // ✅ import context
 const Login = () => {
   const navigate = useNavigate();
   const { sendRequest, loading } = useHttp();
-  const { login } = useAuth(); // ✅ use AuthContext to set user globally
+  const { login } = useAuth();
 
   const [formData, setFormData] = useState({
     email: "",
@@ -15,6 +15,7 @@ const Login = () => {
   });
 
   const [errors, setErrors] = useState({});
+  const [showPassword, setShowPassword] = useState(false); // 👀 toggle state
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -40,17 +41,12 @@ const Login = () => {
       const res = await sendRequest("/user/signin", "POST", formData);
 
       if (res?.data?.token) {
-        // ✅ Extract token + user info
         const userData = { ...res.data, token: res.data.token };
-
-        // Save in AuthContext + localStorage
         login(userData);
         localStorage.setItem("token", res.data.token);
         localStorage.setItem("user", JSON.stringify(userData));
 
         toast.success("✅ Login successful!");
-
-        // Redirect based on role
         if (userData.role === "superadmin") {
           navigate("/admin");
         } else {
@@ -63,7 +59,6 @@ const Login = () => {
       toast.error(err.message || "❌ Login failed");
     }
   };
-
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-neutral-950">
@@ -82,8 +77,9 @@ const Login = () => {
               name="email"
               value={formData.email}
               onChange={handleInputChange}
-              className={`w-full p-4 border rounded-xl bg-neutral-800 text-neutral-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.email ? "border-red-500" : "border-neutral-700"
-                }`}
+              className={`w-full p-4 border rounded-xl bg-neutral-800 text-neutral-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                errors.email ? "border-red-500" : "border-neutral-700"
+              }`}
               placeholder="Enter your email"
             />
             {errors.email && (
@@ -96,15 +92,26 @@ const Login = () => {
             <label className="block text-sm font-semibold mb-2 text-neutral-100">
               Password *
             </label>
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleInputChange}
-              className={`w-full p-4 border rounded-xl bg-neutral-800 text-neutral-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.password ? "border-red-500" : "border-neutral-700"
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                value={formData.password}
+                onChange={handleInputChange}
+                className={`w-full p-4 pr-12 border rounded-xl bg-neutral-800 text-neutral-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                  errors.password ? "border-red-500" : "border-neutral-700"
                 }`}
-              placeholder="Enter your password"
-            />
+                placeholder="Enter your password"
+              />
+              {/* 👀 Toggle button */}
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                className="absolute cursor-pointer inset-y-0 right-3 flex items-center text-xl"
+              >
+                {showPassword ? "🙈" : "🐵"}
+              </button>
+            </div>
             {errors.password && (
               <p className="mt-1 text-red-500 text-xs">{errors.password}</p>
             )}
@@ -114,7 +121,7 @@ const Login = () => {
               <button
                 type="button"
                 onClick={() => navigate("/forget-password")}
-                className="text-sm text-blue-400 hover:underline"
+                className="text-sm cursor-pointer text-blue-400 hover:underline"
               >
                 Forgot Password?
               </button>
@@ -125,7 +132,7 @@ const Login = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 flex justify-center items-center gap-2 disabled:opacity-50"
+            className="w-full cursor-pointer bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 flex justify-center items-center gap-2 disabled:opacity-50"
           >
             {loading ? (
               <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent" />
@@ -139,7 +146,7 @@ const Login = () => {
           Don't have an account?{" "}
           <button
             onClick={() => navigate("/register")}
-            className="text-blue-400 hover:underline font-semibold"
+            className="text-blue-400 cursor-pointer hover:underline font-semibold"
           >
             Register here
           </button>

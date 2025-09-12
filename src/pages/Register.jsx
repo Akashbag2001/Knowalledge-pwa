@@ -190,12 +190,12 @@ const Register = () => {
         toast.success("Registration successful!", {
          
         });
-        login({
-          email: data.email || formData.email,
-          name: data.name || formData.name,
-          role: "user",
-          token: data.token,
-        });
+        // login({
+        //   email: data.email || formData.email,
+        //   name: data.name || formData.name,
+        //   role: "user",
+        //   token: data.token,
+        // });
         navigate("/login");
       }
     } catch (err) {

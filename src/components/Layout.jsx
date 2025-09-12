@@ -174,13 +174,13 @@ const Layout = () => {
                 <div className="flex items-center space-x-4">
                   <button
                     onClick={() => navigate("/login")}
-                    className="px-6 py-2 text-neutral-400 hover:text-blue-400 transition-all duration-300 rounded-xl hover:bg-neutral-800"
+                    className="px-6 py-2 cursor-pointer text-neutral-400 hover:text-blue-400 transition-all duration-300 rounded-xl hover:bg-neutral-800"
                   >
                     Login
                   </button>
                   <button
                     onClick={() => navigate("/register")}
-                    className="group px-6 py-2 bg-blue-500 rounded-2xl font-semibold text-white hover:bg-blue-600 transition-all duration-300 hover:-translate-y-0.5 shadow-sm hover:shadow-lg flex items-center gap-2"
+                    className="group cursor-pointer px-6 py-2 bg-blue-500 rounded-2xl font-semibold text-white hover:bg-blue-600 transition-all duration-300 hover:-translate-y-0.5 shadow-sm hover:shadow-lg flex items-center gap-2"
                   >
                     <span>Join Now</span>
                     <svg
