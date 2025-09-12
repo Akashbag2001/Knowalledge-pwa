@@ -109,7 +109,7 @@ const Login = () => {
                 onClick={() => setShowPassword((prev) => !prev)}
                 className="absolute cursor-pointer inset-y-0 right-3 flex items-center text-xl"
               >
-                {showPassword ? "🙈" : "🐵"}
+                {showPassword ? "🙈" : "🙉"}
               </button>
             </div>
             {errors.password && (

@@ -27,7 +27,10 @@ const Register = () => {
   });
 
   const [errors, setErrors] = useState({});
+  // states
   const [showPassword, setShowPassword] = useState(false);
+
+
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
   const [otp, setOtp] = useState("");
@@ -188,7 +191,7 @@ const Register = () => {
 
       if (data) {
         toast.success("Registration successful!", {
-         
+
         });
         // login({
         //   email: data.email || formData.email,
@@ -201,7 +204,7 @@ const Register = () => {
     } catch (err) {
       setErrors({ submit: err.message || "Registration failed" });
       toast.error("Registration failed!", {
-        
+
       })
     }
   };
@@ -511,7 +514,8 @@ const Register = () => {
 
               {/* Passwords */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
+                {/* Password */}
+                <div className="relative">
                   <label className="block text-sm font-semibold mb-2">Password *</label>
                   <input
                     type={showPassword ? "text" : "password"}
@@ -522,8 +526,17 @@ const Register = () => {
                       }`}
                     placeholder="Create password"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    className="absolute cursor-pointer inset-y-0 right-4 top-9 flex items-center text-xl"
+                  >
+                    {showPassword ? "🙈" : "🙉"}
+                  </button>
                 </div>
-                <div>
+
+                {/* Confirm Password */}
+                <div className="relative">
                   <label className="block text-sm font-semibold mb-2">Confirm Password *</label>
                   <input
                     type={showConfirmPassword ? "text" : "password"}
@@ -534,8 +547,16 @@ const Register = () => {
                       }`}
                     placeholder="Confirm password"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword((prev) => !prev)}
+                    className="absolute cursor-pointer inset-y-0 right-4 top-9 flex items-center text-xl"
+                  >
+                    {showConfirmPassword ? "🙈" : "🙉"}
+                  </button>
                 </div>
               </div>
+
 
               {/* Country Dropdown */}
               <div>
