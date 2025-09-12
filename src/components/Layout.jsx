@@ -1,6 +1,6 @@
 // src/components/Layout.jsx
 import React, { useState, useEffect } from "react";
-import { Outlet, Link } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 const Layout = () => {
@@ -8,6 +8,7 @@ const Layout = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const navigate = useNavigate();
 
   // Scroll effect for navbar
   useEffect(() => {
@@ -27,6 +28,7 @@ const Layout = () => {
   const handleLogout = () => {
     logout();
     setIsMobileMenuOpen(false);
+    navigate("/login"); // redirect to login after logout
   };
 
   return (
@@ -61,16 +63,18 @@ const Layout = () => {
 
       {/* Navbar */}
       <header
-        className={`fixed w-full z-50 transition-all duration-500 ${
-          isScrolled
+        className={`fixed w-full z-50 transition-all duration-500 ${isScrolled
             ? "bg-neutral-950/90 backdrop-blur-xl border-b border-neutral-800 shadow-lg shadow-neutral-900/40"
             : "bg-transparent"
-        }`}
+          }`}
       >
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             {/* Logo */}
-            <Link to="/" className="flex items-center space-x-3 group">
+            <button
+              onClick={() => navigate("/")}
+              className="flex items-center space-x-3 group"
+            >
               <div className="relative">
                 <div className="w-12 h-12 bg-neutral-100 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-all duration-300 shadow-sm">
                   <span className="text-xl font-black text-neutral-900">K</span>
@@ -85,30 +89,30 @@ const Layout = () => {
                   Next-Gen Learning
                 </div>
               </div>
-            </Link>
+            </button>
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-2">
-              <Link
-                to="/"
+              <button
+                onClick={() => navigate("/")}
                 className="relative px-4 py-2 text-neutral-400 hover:text-blue-400 transition-all duration-300 rounded-xl hover:bg-neutral-800"
               >
                 Home
-              </Link>
+              </button>
 
               {user ? (
                 <>
                   {user.role === "user" && (
-                    <Link
-                      to="/dashboard"
+                    <button
+                      onClick={() => navigate("/dashboard")}
                       className="px-4 py-2 text-neutral-400 hover:text-emerald-400 transition-all duration-300 rounded-xl hover:bg-neutral-800"
                     >
                       Dashboard
-                    </Link>
+                    </button>
                   )}
                   {user.role === "superadmin" && (
-                    <Link
-                      to="/admin"
+                    <button
+                      onClick={() => navigate("/admin")}
                       className="px-4 py-2 text-neutral-400 hover:text-amber-400 transition-all duration-300 rounded-xl hover:bg-neutral-800 flex items-center gap-1"
                     >
                       <svg
@@ -125,7 +129,7 @@ const Layout = () => {
                         />
                       </svg>
                       Admin Panel
-                    </Link>
+                    </button>
                   )}
 
                   {/* User Info + Logout */}
@@ -168,14 +172,14 @@ const Layout = () => {
                 </>
               ) : (
                 <div className="flex items-center space-x-4">
-                  <Link
-                    to="/login"
+                  <button
+                    onClick={() => navigate("/login")}
                     className="px-6 py-2 text-neutral-400 hover:text-blue-400 transition-all duration-300 rounded-xl hover:bg-neutral-800"
                   >
                     Login
-                  </Link>
-                  <Link
-                    to="/register"
+                  </button>
+                  <button
+                    onClick={() => navigate("/register")}
                     className="group px-6 py-2 bg-blue-500 rounded-2xl font-semibold text-white hover:bg-blue-600 transition-all duration-300 hover:-translate-y-0.5 shadow-sm hover:shadow-lg flex items-center gap-2"
                   >
                     <span>Join Now</span>
@@ -192,7 +196,7 @@ const Layout = () => {
                         d="M13 7l5 5m0 0l-5 5m5-5H6"
                       />
                     </svg>
-                  </Link>
+                  </button>
                 </div>
               )}
             </div>
