@@ -222,40 +222,58 @@ const Register = () => {
   };
 
 
-  const handleSendOtp = async () => {
-    if (!formData.email) {
-      toast.error("Email is required");
-      return;
+const handleSendOtp = async () => {
+  if (!formData.email) {
+    toast.error("Email is required");
+    return;
+  }
+
+  try {
+    setLoadingOtp(true);
+    const res = await sendRequest(
+      `/user/verifyemail?email=${formData.email}`,
+      "POST"
+    );
+
+    if (res?.success) {
+      toast.success("✅ OTP sent to your email!");
+      setIsVerifying(true); // open OTP input
+    } else {
+      toast.error("❌ Failed to send OTP");
     }
+  } catch (err) {
+    toast.error(err.message || "❌ Something went wrong");
+  } finally {
+    setLoadingOtp(false);
+  }
+};
 
-    try {
-      setLoadingOtp(true);
-      const res = await sendRequest("/user/forgetPassword", "POST", {
-        email: formData.email,
-      });
 
-      if (res?.success) {
-        toast.success("✅ OTP sent to your email!");
-        setIsVerifying(true); // 👈 this will open OTP input field
-      } else {
-        toast.error("❌ Failed to send OTP");
-      }
-    } catch (err) {
-      toast.error(err.message || "❌ Something went wrong");
-    } finally {
-      setLoadingOtp(false);
+
+ const handleConfirmOtp = async () => {
+  if (!formData.email || otp.length !== 6) {
+    toast.error("Please enter a valid OTP");
+    return;
+  }
+
+  try {
+    const res = await sendRequest(
+      `/user/verifyemail?email=${formData.email}&otp=${otp}`,
+      "POST"
+    );
+
+    if (res?.success) {
+      toast.success("✅ Email verified successfully!");
+      setIsverified(true);
+      setIsVerifying(false);
+    } else {
+      toast.error("❌ Invalid OTP, please try again.");
     }
-  };
+  } catch (err) {
+    toast.error(err.message || "❌ Verification failed");
+  }
+};
 
-
-  const handleConfirmOtp = async () => {
-    try {
-      await verifyEmailOtp(formData.email, otp);
-      alert("Email verified successfully!");
-    } catch {
-      alert("Invalid OTP, please try again.");
-    }
-  };
 
   const handleVerifyEmail = () => {
     if (!formData.email) {
