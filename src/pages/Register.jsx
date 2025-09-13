@@ -732,15 +732,15 @@ const handleSendOtp = async () => {
                     onChange={handleInputChange}
                     className="mt-1 w-5 h-5 text-blue-600 border-neutral-700 rounded focus:ring-blue-500"
                   />
-                  <span className="text-sm text-neutral-400">
+                  <span className="flex gap-2 text-sm text-neutral-400">
                     I accept the{" "}
-                    <a href="#" className="text-blue-400 hover:underline">
+                    {/* <a href="#" className="text-blue-400 hover:underline">
                       Terms & Conditions
                     </a>{" "}
-                    and{" "}
-                    <a href="#" className="text-blue-400 hover:underline">
+                    and{" "} */}
+                    <div onClick={() => navigate("/privacy-policy")} className="text-blue-400 hover:underline">
                       Privacy Policy
-                    </a>
+                    </div>
                   </span>
                 </label>
                 {errors.termsAccepted && (

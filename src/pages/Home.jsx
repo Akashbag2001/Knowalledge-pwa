@@ -83,8 +83,8 @@ const Home = () => {
             style={{ transform: `translateY(${scrollY * 0.3}px)` }}
           >
             <div className="relative">
-              <h1 className="text-4xl sm:text-6xl md:text-8xl font-black mb-6 text-white tracking-tight">
-                KNOWALLEDGE
+              <h1 className="text-4xl sm:text-6xl md:text-8xl font-bold  mb-6 text-white tracking-tight">
+                KNOW <span className="text-red-600">{"<"}</span> <span className="font-black">ALL</span> <span className="text-red-600">{">"}</span> EDGE
                 <span className="absolute -top-2 -right-2 w-3 sm:w-4 h-3 sm:h-4 bg-blue-500 rounded-full animate-pulse" />
               </h1>
               <div className="absolute inset-0 bg-blue-500/10 blur-3xl -z-10" />

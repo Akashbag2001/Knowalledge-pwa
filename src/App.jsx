@@ -12,6 +12,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import SuperAdminLogin from "./pages/SuperAdminLogin"; // ✅
 import ForgetPassword from "./pages/ForgetPassword";
 import ResetPassword from "./pages/ResetPassword";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 
 function App() {
   return (
@@ -49,6 +50,7 @@ function App() {
             <Route path="register" element={<Register />} />
             <Route path="/forget-password" element={<ForgetPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="privacy-policy" element={<PrivacyPolicy />} />
             <Route
               path="dashboard"
               element={
