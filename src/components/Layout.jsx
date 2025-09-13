@@ -10,14 +10,14 @@ const Layout = () => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const navigate = useNavigate();
 
-  // Scroll effect for navbar
+  // Scroll effect
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Mouse movement effect
+  // Mouse effect
   useEffect(() => {
     const handleMouseMove = (e) =>
       setMousePosition({ x: e.clientX, y: e.clientY });
@@ -28,7 +28,7 @@ const Layout = () => {
   const handleLogout = () => {
     logout();
     setIsMobileMenuOpen(false);
-    navigate("/login"); // redirect to login after logout
+    navigate("/login");
   };
 
   return (
@@ -63,10 +63,11 @@ const Layout = () => {
 
       {/* Navbar */}
       <header
-        className={`fixed w-full z-50 transition-all duration-500 ${isScrolled
+        className={`fixed w-full z-50 transition-all duration-500 ${
+          isScrolled
             ? "bg-neutral-950/90 backdrop-blur-xl border-b border-neutral-800 shadow-lg shadow-neutral-900/40"
             : "bg-transparent"
-          }`}
+        }`}
       >
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
@@ -115,63 +116,19 @@ const Layout = () => {
                       onClick={() => navigate("/admin")}
                       className="px-4 py-2 text-neutral-400 hover:text-amber-400 transition-all duration-300 rounded-xl hover:bg-neutral-800 flex items-center gap-1"
                     >
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M5 3l14 9-14 9V3z"
-                        />
-                      </svg>
                       Admin Panel
                     </button>
                   )}
 
-                  {/* User Info + Logout */}
-                  <div className="flex items-center space-x-3 ml-4">
-                    <div className="flex items-center space-x-3 px-4 py-2 bg-neutral-800 rounded-2xl border border-neutral-700 hover:border-neutral-600 transition-all">
-                      <div className="relative">
-                        <div className="w-8 h-8 bg-blue-500 rounded-xl flex items-center justify-center">
-                          <span className="text-sm font-bold text-white">
-                            {user.name?.charAt(0).toUpperCase() ||
-                              user.email?.charAt(0).toUpperCase()}
-                          </span>
-                        </div>
-                        <div className="absolute -inset-0.5 bg-blue-400/20 rounded-xl blur-sm -z-10" />
-                      </div>
-                      <span className="text-sm text-neutral-300 font-medium">
-                        {user.name || user.email}
-                      </span>
-                    </div>
-
-                    <button
-                      onClick={handleLogout}
-                      className="group px-5 py-2 bg-red-500 text-white rounded-2xl font-semibold text-sm hover:bg-red-600 transition-all duration-300 hover:-translate-y-0.5 shadow-sm hover:shadow-lg flex items-center gap-2"
-                    >
-                      <span>Logout</span>
-                      <svg
-                        className="w-4 h-4 group-hover:translate-x-1 transition-transform"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                        />
-                      </svg>
-                    </button>
-                  </div>
+                  <button
+                    onClick={handleLogout}
+                    className="group px-5 py-2 bg-red-500 text-white rounded-2xl font-semibold text-sm hover:bg-red-600 transition-all duration-300 flex items-center gap-2"
+                  >
+                    Logout
+                  </button>
                 </>
               ) : (
-                <div className="flex items-center space-x-4">
+                <>
                   <button
                     onClick={() => navigate("/login")}
                     className="px-6 py-2 cursor-pointer text-neutral-400 hover:text-blue-400 transition-all duration-300 rounded-xl hover:bg-neutral-800"
@@ -180,28 +137,123 @@ const Layout = () => {
                   </button>
                   <button
                     onClick={() => navigate("/register")}
-                    className="group cursor-pointer px-6 py-2 bg-blue-500 rounded-2xl font-semibold text-white hover:bg-blue-600 transition-all duration-300 hover:-translate-y-0.5 shadow-sm hover:shadow-lg flex items-center gap-2"
+                    className="group cursor-pointer px-6 py-2 bg-blue-500 rounded-2xl font-semibold text-white hover:bg-blue-600 transition-all duration-300 flex items-center gap-2"
                   >
-                    <span>Join Now</span>
-                    <svg
-                      className="w-4 h-4 group-hover:translate-x-1 transition-transform"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M13 7l5 5m0 0l-5 5m5-5H6"
-                      />
-                    </svg>
+                    Join Now
                   </button>
-                </div>
+                </>
               )}
+            </div>
+
+            {/* Mobile Hamburger */}
+            <div className="md:hidden flex items-center">
+              <button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="text-neutral-400 hover:text-blue-400 focus:outline-none"
+              >
+                {isMobileMenuOpen ? (
+                  <svg
+                    className="w-7 h-7"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                ) : (
+                  <svg
+                    className="w-7 h-7"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 6h16M4 12h16M4 18h16"
+                    />
+                  </svg>
+                )}
+              </button>
             </div>
           </div>
         </nav>
+
+        {/* Mobile Menu Drawer */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden bg-neutral-950 border-t border-neutral-800">
+            <div className="flex flex-col p-4 space-y-4">
+              <button
+                onClick={() => {
+                  navigate("/");
+                  setIsMobileMenuOpen(false);
+                }}
+                className="px-4 py-2 text-left text-neutral-300 hover:text-blue-400 hover:bg-neutral-800 rounded-xl transition-all"
+              >
+                Home
+              </button>
+              {user ? (
+                <>
+                  {user.role === "user" && (
+                    <button
+                      onClick={() => {
+                        navigate("/dashboard");
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className="px-4 py-2 text-left text-neutral-300 hover:text-emerald-400 hover:bg-neutral-800 rounded-xl transition-all"
+                    >
+                      Dashboard
+                    </button>
+                  )}
+                  {user.role === "superadmin" && (
+                    <button
+                      onClick={() => {
+                        navigate("/admin");
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className="px-4 py-2 text-left text-neutral-300 hover:text-amber-400 hover:bg-neutral-800 rounded-xl transition-all"
+                    >
+                      Admin Panel
+                    </button>
+                  )}
+                  <button
+                    onClick={handleLogout}
+                    className="px-4 py-2 text-left text-red-400 hover:text-red-500 hover:bg-neutral-800 rounded-xl transition-all"
+                  >
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={() => {
+                      navigate("/login");
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className="px-4 py-2 text-left text-neutral-300 hover:text-blue-400 hover:bg-neutral-800 rounded-xl transition-all"
+                  >
+                    Login
+                  </button>
+                  <button
+                    onClick={() => {
+                      navigate("/register");
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className="px-4 py-2 text-left text-white bg-blue-500 rounded-xl hover:bg-blue-600 transition-all"
+                  >
+                    Join Now
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        )}
       </header>
 
       {/* Main Content */}
