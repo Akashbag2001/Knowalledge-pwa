@@ -1,20 +1,21 @@
 import { Navigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
-const ProtectedRoute = ({role}) => {
-  // ✅ Get user from localStorage (or AuthContext if you prefer)
-  const user = JSON.parse(localStorage.getItem("user"));
+const ProtectedRoute = ({ children, role }) => {
+  const { user } = useAuth(); // use context (recommended)
 
   if (!user) {
-    // Not logged in → go to login page
+    // Not logged in → go to login
     return <Navigate to="/login" replace />;
   }
 
-  // ✅ Role-based navigation
-  if (role === "superadmin") {
-    return <Navigate to="/admin" replace />;
-  } else {
-    return <Navigate to="/dashboard" replace />;
-  }
+  // Role check
+  // if (role ||  user.role !== role) {
+  //   return <Navigate to="/" replace />; // or show Unauthorized page
+  // }
+
+  // ✅ Show the protected page
+  return children;
 };
 
 export default ProtectedRoute;

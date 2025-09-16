@@ -4,15 +4,19 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Layout from "./components/Layout";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+
+// Pages
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
-import AdminDashboard from "./pages/AdminDashboard";
-import SuperAdminLogin from "./pages/SuperAdminLogin"; // ✅
+import SuperAdminLogin from "./pages/SuperAdminLogin";
 import ForgetPassword from "./pages/ForgetPassword";
 import ResetPassword from "./pages/ResetPassword";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import AdminDashboard from "./pages/superadmin/AdminDashboard";
+import ViewUsers from "./pages/superadmin/ViewUsers";
+ // ✅ new page
 
 function App() {
   return (
@@ -27,19 +31,6 @@ function App() {
         pauseOnFocusLoss
         draggable
         pauseOnHover
-      // style={{
-      //   width: "auto",
-      //   maxWidth: "350px",
-      //   backgroundColor: "#1E2D5B", // dark blue background
-      //   color: "#F3F4F6", // light text
-      //   fontWeight: "600",
-      //   fontSize: "14px",
-      //   borderRadius: "12px",
-      //   boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
-      //   padding: "12px 20px",
-      //   border: "1px solid #3B4A8F",
-      //   textAlign: "center",
-      // }}
       />
       <BrowserRouter>
         <Routes>
@@ -51,10 +42,11 @@ function App() {
             <Route path="/forget-password" element={<ForgetPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="privacy-policy" element={<PrivacyPolicy />} />
+
             <Route
               path="dashboard"
               element={
-                <ProtectedRoute role="user">
+                <ProtectedRoute>
                   <Dashboard />
                 </ProtectedRoute>
               }
@@ -65,6 +57,16 @@ function App() {
               element={
                 <ProtectedRoute role="superadmin">
                   <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* ✅ New Route for View Users */}
+            <Route
+              path="admin/view-users"
+              element={
+                <ProtectedRoute role="superadmin">
+                  <ViewUsers />
                 </ProtectedRoute>
               }
             />
