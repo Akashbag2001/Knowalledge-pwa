@@ -22,16 +22,14 @@ export default function SuperAdminLogin() {
                 "POST",
                 { email, password }
             );
-
-            if (data) {
-                // ✅ Save user with role superadmin in context
-                console.log("SuperAdmin login response:", data);
+            console.log("Raw API response:", data);
+            if (data?.data) {
                 login({
-                    email: data.email || email,
+                    email: data.data.email || email,
                     role: "superadmin",
-                    token: data.token,
+                    token: data.data.token,
                 });
-                navigate("/admin"); // redirect to admin dashboard
+                navigate("/admin");
             }
         } catch (err) {
             setError(err.message || "Login failed");
@@ -62,12 +60,12 @@ export default function SuperAdminLogin() {
                         <div className="absolute -inset-2 bg-amber-500/20 dark:bg-amber-400/20 rounded-2xl blur-xl -z-10" />
 
                         {/* Crown decoration */}
-                        {/* <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                {/* <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
                             <svg className="w-8 h-6 text-amber-500 dark:text-amber-400" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M12 2l3.09 6.26L22 9l-5 4.87L18.18 21L12 17.27L5.82 21L7 13.87L2 9l6.91-.74L12 2z" />
                             </svg>
                         </div> */}
-                    {/* </div> */}
+                {/* </div> */}
                 {/* </div>  */}
 
                 {/* Login Card */}
