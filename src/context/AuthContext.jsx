@@ -4,8 +4,8 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null); // { email, role, token }
+  const [loading, setLoading] = useState(true); // ✅ prevent early redirect
 
-  // ✅ Register form persistence
   const [registerFormData, setRegisterFormData] = useState({
     name: "",
     mobile: "",
@@ -24,7 +24,7 @@ export const AuthProvider = ({ children }) => {
     termsAccepted: false,
   });
 
-  // ✅ Load user from localStorage on mount
+  // ✅ Load user & registerFormData from localStorage on mount
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
@@ -35,15 +35,16 @@ export const AuthProvider = ({ children }) => {
     if (savedForm) {
       setRegisterFormData(JSON.parse(savedForm));
     }
+
+    setLoading(false); // ✅ done restoring
   }, []);
 
-  // ✅ Save registerFormData to localStorage automatically
+  // ✅ Persist form automatically
   useEffect(() => {
     localStorage.setItem("registerFormData", JSON.stringify(registerFormData));
   }, [registerFormData]);
 
   const login = (userData) => {
-    // userData should be { email, role, token }
     setUser(userData);
     localStorage.setItem("user", JSON.stringify(userData));
     localStorage.setItem("role", JSON.stringify(userData?.role));
@@ -54,16 +55,18 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
     localStorage.removeItem("user");
     localStorage.removeItem("token");
+    localStorage.removeItem("role");
   };
 
   return (
     <AuthContext.Provider
       value={{
         user,
+        loading, // ✅ expose loading
         login,
         logout,
         registerFormData,
-        setRegisterFormData, // expose form setter
+        setRegisterFormData,
       }}
     >
       {children}
@@ -71,5 +74,4 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-// ✅ custom hook for easy access
 export const useAuth = () => useContext(AuthContext);
