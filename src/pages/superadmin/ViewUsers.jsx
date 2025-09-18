@@ -11,7 +11,9 @@ const ViewUsers = () => {
   const [page, setPage] = useState(1);
   const [limit] = useState(5);
   const [totalPages, setTotalPages] = useState(1);
-  const [filters, setFilters] = useState({ name: "", email: "", role: "" });
+ const [filters, setFilters] = useState({ name: "", email: "", schoolName: "" });
+
+
   const [debouncedFilters] = useDebounce(filters, 500);
 
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -41,6 +43,7 @@ const ViewUsers = () => {
       if (res) {
         setUsers(res.users || []);
         setTotalPages(res.totalPages || 1);
+        console.log(res);
       }
     } catch (err) {
       console.error("Error fetching users:", err.message);
@@ -123,36 +126,35 @@ const ViewUsers = () => {
         View Users
       </h1>
 
-      {/* Filters */}
-      <div className="flex flex-wrap gap-4 mb-8 justify-center">
-        <input
-          type="text"
-          name="name"
-          placeholder="Search by name"
-          value={filters.name}
-          onChange={handleFilterChange}
-          className="px-4 py-2 rounded-lg bg-neutral-800 text-white border border-neutral-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <input
-          type="text"
-          name="email"
-          placeholder="Search by email"
-          value={filters.email}
-          onChange={handleFilterChange}
-          className="px-4 py-2 rounded-lg bg-neutral-800 text-white border border-neutral-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <select
-          name="role"
-          value={filters.role}
-          onChange={handleFilterChange}
-          className="px-4 py-2 rounded-lg bg-neutral-800 text-white border border-neutral-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="">All Roles</option>
-          <option value="student">Student</option>
-          <option value="schoolUser">School User</option>
-          <option value="user">User</option>
-        </select>
-      </div>
+   {/* Filters */}
+<div className="flex flex-wrap gap-4 mb-8 justify-center">
+  <input
+    type="text"
+    name="name"
+    placeholder="Search by name"
+    value={filters.name}
+    onChange={handleFilterChange}
+    className="px-4 py-2 rounded-lg bg-neutral-800 text-white border border-neutral-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+  />
+  <input
+    type="text"
+    name="email"
+    placeholder="Search by email"
+    value={filters.email}
+    onChange={handleFilterChange}
+    className="px-4 py-2 rounded-lg bg-neutral-800 text-white border border-neutral-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+  />
+  <input
+    type="text"
+    name="schoolName"
+    placeholder="Search by school"
+    value={filters.schoolName}
+    onChange={handleFilterChange}
+    className="px-4 py-2 rounded-lg bg-neutral-800 text-white border border-neutral-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+  />
+</div>
+
+
 
       {/* Table */}
       {loading ? (
