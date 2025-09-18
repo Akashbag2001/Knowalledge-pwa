@@ -4,7 +4,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Layout from "./components/Layout";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
+import { AnimatePresence, motion } from "framer-motion";
 // Pages
 import Home from "./pages/Home";
 import Login from "./pages/Login";
@@ -16,67 +16,77 @@ import ResetPassword from "./pages/ResetPassword";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import AdminDashboard from "./pages/superadmin/AdminDashboard";
 import ViewUsers from "./pages/superadmin/ViewUsers";
- // ✅ new page
+// ✅ new page
 
 function App() {
   return (
-    <AuthProvider>
-      <ToastContainer
-        position="top-center"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-      />
-      <BrowserRouter>
-        <Routes>
-          {/* ✅ Routes with Layout */}
-          <Route path="/" element={<Layout />}>
-            <Route index element={<Home />} />
-            <Route path="login" element={<Login />} />
-            <Route path="register" element={<Register />} />
-            <Route path="/forget-password" element={<ForgetPassword />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="privacy-policy" element={<PrivacyPolicy />} />
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={location.pathname} // triggers animation on route change
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -15 }}
+        transition={{ duration: 0.6, ease: "easeInOut", delay: 0.1 }} // 👈 delay here
+      >
+        <AuthProvider>
+          <ToastContainer
+            position="top-center"
+            autoClose={3000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+          />
+          <BrowserRouter>
+            <Routes>
+              {/* ✅ Routes with Layout */}
+              <Route path="/" element={<Layout />}>
+                <Route index element={<Home />} />
+                <Route path="login" element={<Login />} />
+                <Route path="register" element={<Register />} />
+                <Route path="/forget-password" element={<ForgetPassword />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="privacy-policy" element={<PrivacyPolicy />} />
 
-            <Route
-              path="dashboard"
-              element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              }
-            />
+                <Route
+                  path="dashboard"
+                  element={
+                    <ProtectedRoute>
+                      <Dashboard />
+                    </ProtectedRoute>
+                  }
+                />
 
-            <Route
-              path="admin"
-              element={
-                <ProtectedRoute role="superadmin">
-                  <AdminDashboard />
-                </ProtectedRoute>
-              }
-            />
+                <Route
+                  path="admin"
+                  element={
+                    <ProtectedRoute role="superadmin">
+                      <AdminDashboard />
+                    </ProtectedRoute>
+                  }
+                />
 
-            {/* ✅ New Route for View Users */}
-            <Route
-              path="admin/view-users"
-              element={
-                <ProtectedRoute role="superadmin">
-                  <ViewUsers />
-                </ProtectedRoute>
-              }
-            />
-          </Route>
+                {/* ✅ New Route for View Users */}
+                <Route
+                  path="admin/view-users"
+                  element={
+                    <ProtectedRoute role="superadmin">
+                      <ViewUsers />
+                    </ProtectedRoute>
+                  }
+                />
+              </Route>
 
-          {/* ✅ Superadmin login OUTSIDE Layout */}
-          <Route path="/superadmin/login" element={<SuperAdminLogin />} />
-        </Routes>
-      </BrowserRouter>
-    </AuthProvider>
+              {/* ✅ Superadmin login OUTSIDE Layout */}
+              <Route path="/superadmin/login" element={<SuperAdminLogin />} />
+            </Routes>
+          </BrowserRouter>
+        </AuthProvider>
+      </motion.div>
+    </AnimatePresence>
   );
 }
 
