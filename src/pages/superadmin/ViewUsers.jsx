@@ -11,7 +11,7 @@ const ViewUsers = () => {
   const [page, setPage] = useState(1);
   const [limit] = useState(5);
   const [totalPages, setTotalPages] = useState(1);
- const [filters, setFilters] = useState({ name: "", email: "", schoolName: "" });
+  const [filters, setFilters] = useState({ name: "", email: "", schoolName: "" });
 
 
   const [debouncedFilters] = useDebounce(filters, 500);
@@ -119,6 +119,36 @@ const ViewUsers = () => {
     }
   };
 
+  // --- Export to Excel ---
+  const handleExport = async () => {
+    try {
+      const response = await fetch(`/superAdmin/exportUserList`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to export users");
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "UserList.xlsx"; // default file name
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      toast.success("Export successful!");
+    } catch (err) {
+      console.error("Export error:", err.message);
+      toast.error("Failed to export users");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-neutral-950 text-white py-10 px-6">
       <ToastContainer />
@@ -126,39 +156,47 @@ const ViewUsers = () => {
         View Users
       </h1>
 
-   {/* Filters */}
-<div className="flex flex-wrap gap-4 mb-8 justify-center">
-  <input
-    type="text"
-    name="name"
-    placeholder="Search by name"
-    value={filters.name}
-    onChange={handleFilterChange}
-    className="px-4 py-2 rounded-lg bg-neutral-800 text-white border border-neutral-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-  />
-  <input
-    type="text"
-    name="email"
-    placeholder="Search by email"
-    value={filters.email}
-    onChange={handleFilterChange}
-    className="px-4 py-2 rounded-lg bg-neutral-800 text-white border border-neutral-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-  />
-  <input
-    type="text"
-    name="schoolName"
-    placeholder="Search by school"
-    value={filters.schoolName}
-    onChange={handleFilterChange}
-    className="px-4 py-2 rounded-lg bg-neutral-800 text-white border border-neutral-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-  />
-</div>
+      {/* Filters */}
+      <div className="flex flex-wrap gap-4 mb-8 justify-center">
+        <input
+          type="text"
+          name="name"
+          placeholder="Search by name"
+          value={filters.name}
+          onChange={handleFilterChange}
+          className="px-4 py-2 rounded-lg bg-neutral-800 text-white border border-neutral-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <input
+          type="text"
+          name="email"
+          placeholder="Search by email"
+          value={filters.email}
+          onChange={handleFilterChange}
+          className="px-4 py-2 rounded-lg bg-neutral-800 text-white border border-neutral-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <input
+          type="text"
+          name="schoolName"
+          placeholder="Search by school"
+          value={filters.schoolName}
+          onChange={handleFilterChange}
+          className="px-4 py-2 rounded-lg bg-neutral-800 text-white border border-neutral-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <button className="p-[3px] relative cursor-pointer" onClick={handleExport}>
+          <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-lg" />
+          <div className="px-8 py-2  bg-black rounded-[6px]  relative group transition duration-200 text-white hover:bg-transparent">
+            Export
+          </div>
+        </button>
+      </div>
 
 
 
       {/* Table */}
       {loading ? (
-        <p className="text-center text-gray-400">Loading users...</p>
+        <div className="flex justify-center items-center py-20">
+          <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+        </div>
       ) : (
         <div className="overflow-x-auto rounded-xl shadow-lg border border-neutral-800">
           <table className="w-full text-left border-collapse">
@@ -240,7 +278,7 @@ const ViewUsers = () => {
         <button
           disabled={page === 1}
           onClick={() => setPage((prev) => prev - 1)}
-          className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-full shadow hover:opacity-90 disabled:opacity-50"
+          className="px-4 cursor-pointer py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-full shadow hover:opacity-90 disabled:opacity-50"
         >
           Prev
         </button>
@@ -250,7 +288,7 @@ const ViewUsers = () => {
         <button
           disabled={page === totalPages}
           onClick={() => setPage((prev) => prev + 1)}
-          className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-full shadow hover:opacity-90 disabled:opacity-50"
+          className="px-4 cursor-pointer py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-full shadow hover:opacity-90 disabled:opacity-50"
         >
           Next
         </button>

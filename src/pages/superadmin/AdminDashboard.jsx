@@ -1,6 +1,4 @@
-
 import { motion } from "framer-motion";
-
 import {
   Users,
   Newspaper,
@@ -16,42 +14,49 @@ const options = [
     title: "View Users",
     icon: <Users className="w-8 h-8" />,
     color: "from-blue-500 to-blue-700",
-     path: "/admin/view-users",
+    path: "/admin/view-users",
   },
   {
     title: "Add News",
     icon: <Newspaper className="w-8 h-8" />,
     color: "from-green-500 to-green-700",
+    path: "/add-news", // optional placeholder route
   },
   {
     title: "Add Trivia Post",
     icon: <PenSquare className="w-8 h-8" />,
     color: "from-purple-500 to-purple-700",
+    path: "/add-trivia", // optional placeholder route
   },
   {
     title: "Add Event/Quiz",
     icon: <Calendar className="w-8 h-8" />,
     color: "from-pink-500 to-pink-700",
+    path: "/add-event", // optional placeholder route
   },
   {
     title: "View Quiz Result",
     icon: <BarChart2 className="w-8 h-8" />,
     color: "from-orange-500 to-orange-700",
+    path: "/view-quiz-result", // optional placeholder route
   },
   {
     title: "Add School Options",
     icon: <School className="w-8 h-8" />,
     color: "from-indigo-500 to-indigo-700",
+    path: "/admin/add-school",
   },
 ];
 
 const AdminDashboard = () => {
-    const navigate  = useNavigate();
-    const handleClick = (path) => {
-        if(path === "/admin/view-users"){
-            navigate("/admin/view-users");
-        }
+  const navigate = useNavigate();
+
+  const handleClick = (path) => {
+    if (path) {
+      navigate(path);
     }
+  };
+
   return (
     <div className="min-h-screen bg-neutral-950 text-white py-16 px-6">
       {/* Page Heading */}
