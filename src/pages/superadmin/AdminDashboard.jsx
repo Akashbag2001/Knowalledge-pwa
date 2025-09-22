@@ -6,6 +6,7 @@ import {
   Calendar,
   BarChart2,
   School,
+  BookOpen
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -45,6 +46,12 @@ const options = [
     icon: <School className="w-8 h-8" />,
     color: "from-indigo-500 to-indigo-700",
     path: "/admin/add-school",
+  },
+  {
+    title: "Add Topics", // ✅ New card
+    icon: <BookOpen className="w-8 h-8" />,
+    color: "from-teal-500 to-teal-700",
+    path: "/admin/add-topics",
   },
 ];
 
