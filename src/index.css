@@ -7,7 +7,7 @@ input:-webkit-autofill:focus,
 input:-webkit-autofill:active {
   -webkit-box-shadow: 0 0 0px 1000px #1f2937 inset !important; /* bg-neutral-800 */
   -webkit-text-fill-color: #e5e7eb !important; /* text-neutral-200 */
-  transition: background-color 5000s ease-in-out 0s;
+  transition: background-color 1000s ease-in-out 0s;
 }
 input:-webkit-autofill {
   -webkit-box-shadow: 0 0 0px 1000px rgb(38 38 38) inset !important; /* bg-neutral-800 */
