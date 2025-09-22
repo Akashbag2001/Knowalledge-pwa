@@ -18,6 +18,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import AdminDashboard from "./pages/superadmin/AdminDashboard";
 import ViewUsers from "./pages/superadmin/ViewUsers";
 import AddSchool from "./pages/superadmin/AddSchool";
+import AddTopic from "./pages/superadmin/AddTopic"; // ✅ Import AddTopic
 
 function AnimatedRoutes() {
   const location = useLocation();
@@ -60,10 +61,19 @@ function AnimatedRoutes() {
             />
 
             <Route
-              path="admin/add-school" // 👈 removed leading slash
+              path="admin/add-school"
               element={
                 <ProtectedRoute role="superadmin">
                   <AddSchool />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="admin/add-topics" // ✅ New route
+              element={
+                <ProtectedRoute role="superadmin">
+                  <AddTopic />
                 </ProtectedRoute>
               }
             />
