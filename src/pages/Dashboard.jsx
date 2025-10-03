@@ -22,8 +22,18 @@ const Dashboard = () => {
         toast.error("❌ Failed to fetch topics");
       }
     };
+
     fetchTopics();
+
+    // ✅ Load selected topics from localStorage (if available)
+    const savedTopics = JSON.parse(localStorage.getItem("selectedTopics")) || [];
+    setSelectedTopics(savedTopics);
   }, []);
+
+  // ✅ Save selected topics to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem("selectedTopics", JSON.stringify(selectedTopics));
+  }, [selectedTopics]);
 
   // Toggle topic selection
   const toggleTopic = (topic) => {
@@ -94,10 +104,9 @@ const Dashboard = () => {
                 key={topic._id || index}
                 onClick={() => toggleTopic(topicName)}
                 className={`p-6 rounded-2xl shadow-md cursor-pointer text-center font-medium transition transform duration-200
-                  ${
-                    isSelected
-                      ? "bg-blue-600 text-white scale-105 shadow-xl"
-                      : "bg-gray-800 text-gray-300 hover:bg-blue-700 hover:text-white hover:scale-105"
+                  ${isSelected
+                    ? "bg-blue-600 text-white scale-105 shadow-xl"
+                    : "bg-gray-800 text-gray-300 hover:bg-blue-700 hover:text-white hover:scale-105"
                   }`}
               >
                 {topicName}
