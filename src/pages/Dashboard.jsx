@@ -11,12 +11,18 @@ const Dashboard = () => {
   const user = JSON.parse(localStorage.getItem("user"));
   const userId = user?._id;
 
-  // Fetch topics
+  // Fetch topics on mount
   useEffect(() => {
     const fetchTopics = async () => {
       try {
         const data = await sendRequest("/superAdmin/topics", "GET");
-        setTopics(data?.topics || data || []);
+        const fetchedTopics = data?.topics || data || [];
+        setTopics(fetchedTopics);
+
+        // ✅ Once topics are fetched, restore selectedTopics
+        const savedTopics =
+          JSON.parse(localStorage.getItem("selectedTopics")) || [];
+        setSelectedTopics(savedTopics);
       } catch (error) {
         console.error("Error fetching topics:", error.message);
         toast.error("❌ Failed to fetch topics");
@@ -24,10 +30,6 @@ const Dashboard = () => {
     };
 
     fetchTopics();
-
-    // ✅ Load selected topics from localStorage (if available)
-    const savedTopics = JSON.parse(localStorage.getItem("selectedTopics")) || [];
-    setSelectedTopics(savedTopics);
   }, []);
 
   // ✅ Save selected topics to localStorage whenever they change
@@ -104,9 +106,10 @@ const Dashboard = () => {
                 key={topic._id || index}
                 onClick={() => toggleTopic(topicName)}
                 className={`p-6 rounded-2xl shadow-md cursor-pointer text-center font-medium transition transform duration-200
-                  ${isSelected
-                    ? "bg-blue-600 text-white scale-105 shadow-xl"
-                    : "bg-gray-800 text-gray-300 hover:bg-blue-700 hover:text-white hover:scale-105"
+                  ${
+                    isSelected
+                      ? "bg-blue-600 text-white scale-105 shadow-xl"
+                      : "bg-gray-800 text-gray-300 hover:bg-blue-700 hover:text-white hover:scale-105"
                   }`}
               >
                 {topicName}

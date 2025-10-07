@@ -13,3 +13,25 @@ input:-webkit-autofill {
   -webkit-box-shadow: 0 0 0px 1000px rgb(38 38 38) inset !important; /* bg-neutral-800 */
   -webkit-text-fill-color: rgb(229 229 229) !important; /* text-neutral-200 */
 }
+
+.ql-toolbar {
+  background-color: #1e293b !important;
+  border: 1px solid #334155 !important;
+  color: #fff;
+}
+
+.ql-container {
+  background-color: #0f172a !important;
+  border: 1px solid #334155 !important;
+  color: #fff !important;
+}
+
+.ql-editor {
+  min-height: 150px;
+  color: #fff !important;
+}
+
+.ql-picker {
+  color: #fff !important;
+}
+

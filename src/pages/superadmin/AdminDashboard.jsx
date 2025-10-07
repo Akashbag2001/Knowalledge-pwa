@@ -21,7 +21,7 @@ const options = [
     title: "Add News",
     icon: <Newspaper className="w-8 h-8" />,
     color: "from-green-500 to-green-700",
-    path: "/add-news", // optional placeholder route
+    path: "/admin/add-news", // optional placeholder route
   },
   {
     title: "Add Trivia Post",

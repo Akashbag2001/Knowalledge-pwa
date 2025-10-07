@@ -1,19 +1,10 @@
 import { useState } from "react";
 
-// ✅ set your API base URL here
 const BASE_URL = "http://localhost:8080/api/v1";
 
 export default function useHttp() {
   const [loading, setLoading] = useState(false);
 
-  /**
-   * sendRequest - Generic function to call API
-   * @param {string} endpoint - API endpoint (e.g., "/school/getSchool")
-   * @param {string} method - HTTP method (GET, POST, PUT, DELETE)
-   * @param {object|null} body - Request body for POST/PUT
-   * @param {object} headers - Additional headers
-   * @param {object} queryParams - Optional query params for GET requests
-   */
   const sendRequest = async (
     endpoint,
     method = "GET",
@@ -25,19 +16,29 @@ export default function useHttp() {
     try {
       let url = `${BASE_URL}${endpoint}`;
 
-      // Append query params for GET requests
+      // ✅ Append query params for GET requests
       if (method.toUpperCase() === "GET" && Object.keys(queryParams).length) {
         const queryString = new URLSearchParams(queryParams).toString();
         url += `?${queryString}`;
       }
 
+      // ✅ Detect if body is FormData
+      const isFormData = body instanceof FormData;
+
       const response = await fetch(url, {
         method,
-        headers: {
-          "Content-Type": "application/json",
-          ...headers,
-        },
-        body: body ? JSON.stringify(body) : null,
+        headers: isFormData
+          ? headers // Let browser set Content-Type (with boundary)
+          : {
+              "Content-Type": "application/json",
+              ...headers,
+            },
+        body:
+          method === "GET" || method === "HEAD"
+            ? null
+            : isFormData
+            ? body // Send FormData as-is
+            : JSON.stringify(body),
       });
 
       const data = await response.json();
@@ -47,6 +48,9 @@ export default function useHttp() {
       }
 
       return data;
+    } catch (err) {
+      console.error("HTTP Error:", err.message);
+      throw err;
     } finally {
       setLoading(false);
     }

@@ -5,6 +5,7 @@ import Layout from "./components/Layout";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { AnimatePresence, motion } from "framer-motion";
+// import "react-quill/dist/quill.snow.css";
 
 // Pages
 import Home from "./pages/Home";
@@ -18,7 +19,8 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import AdminDashboard from "./pages/superadmin/AdminDashboard";
 import ViewUsers from "./pages/superadmin/ViewUsers";
 import AddSchool from "./pages/superadmin/AddSchool";
-import AddTopic from "./pages/superadmin/AddTopic"; // ✅ Import AddTopic
+import AddTopic from "./pages/superadmin/AddTopic";
+import AddNews from "./pages/superadmin/AddNews"; // ✅ Import AddNews
 
 function AnimatedRoutes() {
   const location = useLocation();
@@ -26,7 +28,7 @@ function AnimatedRoutes() {
   return (
     <AnimatePresence mode="wait">
       <motion.div
-        key={location.pathname} // triggers animation on route change
+        key={location.pathname}
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -15 }}
@@ -51,6 +53,7 @@ function AnimatedRoutes() {
               }
             />
 
+            {/* 🧑‍💼 Super Admin Routes */}
             <Route
               path="admin"
               element={
@@ -70,10 +73,20 @@ function AnimatedRoutes() {
             />
 
             <Route
-              path="admin/add-topics" // ✅ New route
+              path="admin/add-topics"
               element={
                 <ProtectedRoute role="superadmin">
                   <AddTopic />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* ✅ Add News Route */}
+            <Route
+              path="admin/add-news"
+              element={
+                <ProtectedRoute role="superadmin">
+                  <AddNews />
                 </ProtectedRoute>
               }
             />
