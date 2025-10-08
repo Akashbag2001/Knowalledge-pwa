@@ -38,6 +38,7 @@ const RichTextEditor = ({ value, onChange, placeholder, minHeight = "150px" }) =
         ].map(({ cmd, label, style }) => (
           <button
             key={cmd}
+            type="button"
             onClick={() => execCommand(cmd)}
             className={`px-3 py-1 bg-[#1E2D5B]/40 border border-gray-700 rounded hover:bg-[#1E2D5B]/60 text-gray-200 ${style}`}
           >
@@ -49,12 +50,14 @@ const RichTextEditor = ({ value, onChange, placeholder, minHeight = "150px" }) =
 
         <button
           onClick={() => execCommand("insertUnorderedList")}
+          type="button"
           className="px-3 py-1 bg-[#1E2D5B]/40 border border-gray-700 rounded hover:bg-[#1E2D5B]/60 text-gray-200"
         >
           • List
         </button>
         <button
           onClick={() => execCommand("insertOrderedList")}
+          type="button"
           className="px-3 py-1 bg-[#1E2D5B]/40 border border-gray-700 rounded hover:bg-[#1E2D5B]/60 text-gray-200"
         >
           1. List
@@ -69,6 +72,7 @@ const RichTextEditor = ({ value, onChange, placeholder, minHeight = "150px" }) =
         ].map(({ cmd, label }) => (
           <button
             key={cmd}
+            type="button"
             onClick={() => execCommand(cmd)}
             className="px-3 py-1 bg-[#1E2D5B]/40 border border-gray-700 rounded hover:bg-[#1E2D5B]/60 text-gray-200"
           >
@@ -103,6 +107,7 @@ const RichTextEditor = ({ value, onChange, placeholder, minHeight = "150px" }) =
 
         <button
           onClick={() => execCommand("removeFormat")}
+          type="button"
           className="px-3 py-1 bg-red-700/40 border border-gray-700 rounded hover:bg-red-700/60 text-gray-200"
         >
           ✕
@@ -184,42 +189,50 @@ const AddNews = () => {
   };
 
   const handleFileChange = (e) => {
-    setFormData((prev) => ({ ...prev, images: e.target.files[0] }));
-  };
+  const file = e.target.files[0];
+  setFormData((prev) => ({ ...prev, images: file }));
+};
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!formData.heading || !formData.subHeading || !formData.date) {
-      toast.warn("⚠️ Please fill all required fields");
-      return;
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  if (!formData.heading || !formData.subHeading || !formData.date) {
+    toast.warn("⚠️ Please fill all required fields");
+    return;
+  }
+
+  const newsData = new FormData();
+  Object.entries(formData).forEach(([key, value]) => {
+    if (key === "topics") {
+      newsData.append(key, JSON.stringify(value));
+    } else if (key === "images" && value) {
+      newsData.append("images", value); // append single image
+    } else {
+      newsData.append(key, value);
     }
+  });
 
-    const newsData = new FormData();
-    Object.entries(formData).forEach(([key, value]) => {
-      if (key === "topics") newsData.append(key, JSON.stringify(value));
-      else newsData.append(key, value);
+  try {
+    await sendRequest("/superAdmin/news", "POST", newsData, {
+      headers: { "Content-Type": "multipart/form-data" },
     });
+    toast.success("✅ News added successfully!");
+    setFormData({
+      heading: "",
+      subHeading: "",
+      smallContent: "",
+      largeContent: "",
+      contentType: "Current Affair",
+      topics: [],
+      contentFor: "",
+      date: "",
+      images: null,
+    });
+  } catch {
+    toast.error("❌ Failed to add news");
+  }
+};
 
-    try {
-      await sendRequest("/superAdmin/news", "POST", newsData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      toast.success("✅ News added successfully!");
-      setFormData({
-        heading: "",
-        subHeading: "",
-        smallContent: "",
-        largeContent: "",
-        contentType: "Current Affair",
-        topics: [],
-        contentFor: "",
-        date: "",
-        images: null,
-      });
-    } catch {
-      toast.error("❌ Failed to add news");
-    }
-  };
 
   return (
     <div className="p-8 min-h-screen bg-[#121212] text-gray-100">
