@@ -27,7 +27,7 @@ const RichTextEditor = ({ value, onChange, placeholder, minHeight = "150px" }) =
   };
 
   return (
-    <div className="border border-gray-600 rounded-lg overflow-hidden bg-white">
+    <div className="border border-gray-600 rounded-lg overflow-hidden bg-gray-700">
       <div className="flex flex-wrap gap-1 p-2 bg-gray-100 border-b border-gray-300">
         {[
           { cmd: "bold", label: "B", style: "font-bold" },
@@ -296,11 +296,10 @@ const AddNews = () => {
                     type="button"
                     key={index}
                     onClick={() => handleTopicToggle(topicName)}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
-                      isSelected
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition ${isSelected
                         ? "bg-blue-600 text-white"
                         : "bg-gray-700 text-gray-300 hover:bg-blue-700 hover:text-white"
-                    }`}
+                      }`}
                   >
                     {topicName}
                   </button>

@@ -16,29 +16,22 @@ export default function useHttp() {
     try {
       let url = `${BASE_URL}${endpoint}`;
 
-      // ✅ Append query params for GET requests
+      // Add query params for GET
       if (method.toUpperCase() === "GET" && Object.keys(queryParams).length) {
         const queryString = new URLSearchParams(queryParams).toString();
         url += `?${queryString}`;
       }
 
-      // ✅ Detect if body is FormData
+      // 🧠 Detect if body is FormData
       const isFormData = body instanceof FormData;
 
       const response = await fetch(url, {
         method,
-        headers: isFormData
-          ? headers // Let browser set Content-Type (with boundary)
-          : {
-              "Content-Type": "application/json",
-              ...headers,
-            },
-        body:
-          method === "GET" || method === "HEAD"
-            ? null
-            : isFormData
-            ? body // Send FormData as-is
-            : JSON.stringify(body),
+        headers: {
+          ...(isFormData ? {} : { "Content-Type": "application/json" }),
+          ...headers,
+        },
+        body: body ? (isFormData ? body : JSON.stringify(body)) : null,
       });
 
       const data = await response.json();
@@ -48,9 +41,6 @@ export default function useHttp() {
       }
 
       return data;
-    } catch (err) {
-      console.error("HTTP Error:", err.message);
-      throw err;
     } finally {
       setLoading(false);
     }
