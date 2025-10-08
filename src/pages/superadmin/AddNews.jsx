@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
 import { toast } from "react-toastify";
-import useHttp from "../../api/useHttp"; // ✅ your actual hook
+import useHttp from "../../api/useHttp";
 
-// ✅ Reusable Rich Text Editor (unchanged)
+// ✅ Reusable Rich Text Editor with Dark UI
 const RichTextEditor = ({ value, onChange, placeholder, minHeight = "150px" }) => {
   const editorRef = useRef(null);
+
   useEffect(() => {
     if (editorRef.current && value !== editorRef.current.innerHTML) {
       editorRef.current.innerHTML = value || "";
@@ -27,8 +28,8 @@ const RichTextEditor = ({ value, onChange, placeholder, minHeight = "150px" }) =
   };
 
   return (
-    <div className="border border-gray-600 rounded-lg overflow-hidden bg-gray-700">
-      <div className="flex flex-wrap gap-1 p-2 bg-gray-100 border-b border-gray-300">
+    <div className="border border-gray-700 rounded-lg overflow-hidden bg-[#1E1E1E] shadow-inner">
+      <div className="flex flex-wrap gap-1 p-2 bg-[#2B2B2B] border-b border-gray-700">
         {[
           { cmd: "bold", label: "B", style: "font-bold" },
           { cmd: "italic", label: "I", style: "italic" },
@@ -38,27 +39,28 @@ const RichTextEditor = ({ value, onChange, placeholder, minHeight = "150px" }) =
           <button
             key={cmd}
             onClick={() => execCommand(cmd)}
-            className={`px-3 py-1 bg-white border border-gray-300 rounded hover:bg-gray-50 ${style}`}
+            className={`px-3 py-1 bg-[#1E2D5B]/40 border border-gray-700 rounded hover:bg-[#1E2D5B]/60 text-gray-200 ${style}`}
           >
             {label}
           </button>
         ))}
-        <div className="w-px bg-gray-300 mx-1"></div>
+
+        <div className="w-px bg-gray-700 mx-1"></div>
 
         <button
           onClick={() => execCommand("insertUnorderedList")}
-          className="px-3 py-1 bg-white border border-gray-300 rounded hover:bg-gray-50"
+          className="px-3 py-1 bg-[#1E2D5B]/40 border border-gray-700 rounded hover:bg-[#1E2D5B]/60 text-gray-200"
         >
           • List
         </button>
         <button
           onClick={() => execCommand("insertOrderedList")}
-          className="px-3 py-1 bg-white border border-gray-300 rounded hover:bg-gray-50"
+          className="px-3 py-1 bg-[#1E2D5B]/40 border border-gray-700 rounded hover:bg-[#1E2D5B]/60 text-gray-200"
         >
           1. List
         </button>
 
-        <div className="w-px bg-gray-300 mx-1"></div>
+        <div className="w-px bg-gray-700 mx-1"></div>
 
         {[
           { cmd: "justifyLeft", label: "⬅" },
@@ -68,40 +70,40 @@ const RichTextEditor = ({ value, onChange, placeholder, minHeight = "150px" }) =
           <button
             key={cmd}
             onClick={() => execCommand(cmd)}
-            className="px-3 py-1 bg-white border border-gray-300 rounded hover:bg-gray-50"
+            className="px-3 py-1 bg-[#1E2D5B]/40 border border-gray-700 rounded hover:bg-[#1E2D5B]/60 text-gray-200"
           >
             {label}
           </button>
         ))}
 
-        <div className="w-px bg-gray-300 mx-1"></div>
+        <div className="w-px bg-gray-700 mx-1"></div>
 
-        <div className="flex items-center gap-1">
-          <label className="flex items-center gap-1 px-2 py-1 bg-white border border-gray-300 rounded hover:bg-gray-50 cursor-pointer">
+        <div className="flex items-center gap-2">
+          <label className="flex items-center gap-1 px-2 py-1 bg-[#1E2D5B]/40 border border-gray-700 rounded hover:bg-[#1E2D5B]/60 cursor-pointer text-gray-200">
             <span className="text-sm">A</span>
             <input
               type="color"
               onChange={(e) => handleColorChange(e, "foreColor")}
-              className="w-6 h-6 cursor-pointer"
+              className="w-6 h-6 cursor-pointer border-none bg-transparent"
               title="Text Color"
             />
           </label>
-          <label className="flex items-center gap-1 px-2 py-1 bg-white border border-gray-300 rounded hover:bg-gray-50 cursor-pointer">
+          <label className="flex items-center gap-1 px-2 py-1 bg-[#1E2D5B]/40 border border-gray-700 rounded hover:bg-[#1E2D5B]/60 cursor-pointer text-gray-200">
             <span className="text-sm">🎨</span>
             <input
               type="color"
               onChange={(e) => handleColorChange(e, "backColor")}
-              className="w-6 h-6 cursor-pointer"
+              className="w-6 h-6 cursor-pointer border-none bg-transparent"
               title="Background Color"
             />
           </label>
         </div>
 
-        <div className="w-px bg-gray-300 mx-1"></div>
+        <div className="w-px bg-gray-700 mx-1"></div>
 
         <button
           onClick={() => execCommand("removeFormat")}
-          className="px-3 py-1 bg-white border border-gray-300 rounded hover:bg-gray-50"
+          className="px-3 py-1 bg-red-700/40 border border-gray-700 rounded hover:bg-red-700/60 text-gray-200"
         >
           ✕
         </button>
@@ -111,7 +113,7 @@ const RichTextEditor = ({ value, onChange, placeholder, minHeight = "150px" }) =
         ref={editorRef}
         contentEditable
         onInput={handleInput}
-        className="p-4 text-gray-900 focus:outline-none"
+        className="p-4 text-gray-200 focus:outline-none"
         style={{ minHeight }}
         data-placeholder={placeholder}
       ></div>
@@ -119,7 +121,7 @@ const RichTextEditor = ({ value, onChange, placeholder, minHeight = "150px" }) =
       <style jsx>{`
         [contentEditable]:empty:before {
           content: attr(data-placeholder);
-          color: #9ca3af;
+          color: #6b7280;
           pointer-events: none;
         }
       `}</style>
@@ -127,7 +129,7 @@ const RichTextEditor = ({ value, onChange, placeholder, minHeight = "150px" }) =
   );
 };
 
-// ✅ Add News Component
+// ✅ Add News (Dark UI)
 const AddNews = () => {
   const { sendRequest, loading } = useHttp();
   const [topics, setTopics] = useState([]);
@@ -143,13 +145,12 @@ const AddNews = () => {
     images: null,
   });
 
-  // ✅ Fetch topics
   useEffect(() => {
     const fetchTopics = async () => {
       try {
         const data = await sendRequest("/superAdmin/topics", "GET");
         setTopics(data?.topics || []);
-      } catch (error) {
+      } catch {
         toast.error("❌ Failed to fetch topics");
       }
     };
@@ -165,7 +166,6 @@ const AddNews = () => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  // ✅ Topic toggle with limit
   const handleTopicToggle = (topic) => {
     setFormData((prev) => {
       const isSelected = prev.topics.includes(topic);
@@ -189,19 +189,15 @@ const AddNews = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // if (!formData.heading || !formData.subHeading || !formData.date) {
-    //   toast.warn("⚠️ Please fill all required fields");
-    //   return;
-    // }
+    if (!formData.heading || !formData.subHeading || !formData.date) {
+      toast.warn("⚠️ Please fill all required fields");
+      return;
+    }
 
     const newsData = new FormData();
     Object.entries(formData).forEach(([key, value]) => {
-      if (key === "topics") {
-        newsData.append(key, JSON.stringify(value));
-      } else {
-        newsData.append(key, value);
-      }
+      if (key === "topics") newsData.append(key, JSON.stringify(value));
+      else newsData.append(key, value);
     });
 
     try {
@@ -226,13 +222,18 @@ const AddNews = () => {
   };
 
   return (
-    <div className="p-8 min-h-screen bg-gray-900 text-gray-100">
-      <h1 className="text-3xl font-bold mb-8 text-white">📰 Add News</h1>
+    <div className="p-8 min-h-screen bg-[#121212] text-gray-100">
+      <h1 className="text-3xl font-bold mb-8 text-[#1E2D5B]">📰 Add News</h1>
 
-      <form onSubmit={handleSubmit} className="space-y-6 bg-gray-800 p-8 rounded-2xl shadow-lg">
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-6 bg-[#1E1E1E] p-8 rounded-2xl shadow-lg border border-gray-800"
+      >
         {/* Heading */}
         <div>
-          <label className="block text-sm font-semibold mb-2">Heading</label>
+          <label className="block text-sm font-semibold mb-2 text-gray-300">
+            Heading
+          </label>
           <RichTextEditor
             value={formData.heading}
             onChange={(value) => handleRichTextChange("heading", value)}
@@ -243,7 +244,9 @@ const AddNews = () => {
 
         {/* Subheading */}
         <div>
-          <label className="block text-sm font-semibold mb-2">Sub Heading</label>
+          <label className="block text-sm font-semibold mb-2 text-gray-300">
+            Sub Heading
+          </label>
           <RichTextEditor
             value={formData.subHeading}
             onChange={(value) => handleRichTextChange("subHeading", value)}
@@ -255,7 +258,7 @@ const AddNews = () => {
         {/* Small & Large Content */}
         {["smallContent", "largeContent"].map((field, i) => (
           <div key={i}>
-            <label className="block text-sm font-semibold mb-2 capitalize">
+            <label className="block text-sm font-semibold mb-2 text-gray-300 capitalize">
               {field.replace("Content", " Content")}
             </label>
             <RichTextEditor
@@ -269,23 +272,25 @@ const AddNews = () => {
 
         {/* Content Type */}
         <div>
-          <label className="block text-sm font-semibold mb-2">Content Type</label>
+          <label className="block text-sm font-semibold mb-2 text-gray-300">
+            Content Type
+          </label>
           <input
             type="text"
             name="contentType"
             value={formData.contentType}
             onChange={handleChange}
-            className="w-full p-3 rounded-lg bg-gray-700 text-gray-100 border border-gray-600 focus:ring-2 focus:ring-blue-500"
+            className="w-full p-3 rounded-lg bg-[#2B2B2B] text-gray-100 border border-gray-700 focus:ring-2 focus:ring-[#1E2D5B]"
           />
         </div>
 
-        {/* ✅ Topics with 5 limit */}
+        {/* Topics */}
         <div>
-          <label className="block text-sm font-semibold mb-2">
+          <label className="block text-sm font-semibold mb-2 text-gray-300">
             Select Topics (max 5)
           </label>
           {topics.length === 0 ? (
-            <p className="text-gray-400">Loading topics...</p>
+            <p className="text-gray-500">Loading topics...</p>
           ) : (
             <div className="flex flex-wrap gap-3">
               {topics.map((topic, index) => {
@@ -297,8 +302,8 @@ const AddNews = () => {
                     key={index}
                     onClick={() => handleTopicToggle(topicName)}
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition ${isSelected
-                        ? "bg-blue-600 text-white"
-                        : "bg-gray-700 text-gray-300 hover:bg-blue-700 hover:text-white"
+                        ? "bg-[#1E2D5B] text-white"
+                        : "bg-[#2B2B2B] text-gray-300 hover:bg-[#1E2D5B]/70 hover:text-white"
                       }`}
                   >
                     {topicName}
@@ -309,14 +314,16 @@ const AddNews = () => {
           )}
         </div>
 
-        {/* ✅ Dropdown for Content For */}
+        {/* Content For */}
         <div>
-          <label className="block text-sm font-semibold mb-2">Content For</label>
+          <label className="block text-sm font-semibold mb-2 text-gray-300">
+            Content For
+          </label>
           <select
             name="contentFor"
             value={formData.contentFor}
             onChange={handleChange}
-            className="w-full p-3 rounded-lg bg-gray-700 text-gray-100 border border-gray-600 focus:ring-2 focus:ring-blue-500"
+            className="w-full p-3 rounded-lg bg-[#2B2B2B] text-gray-100 border border-gray-700 focus:ring-2 focus:ring-[#1E2D5B]"
           >
             <option value="">Select</option>
             <option value="For School">For School</option>
@@ -326,32 +333,37 @@ const AddNews = () => {
 
         {/* Date */}
         <div>
-          <label className="block text-sm font-semibold mb-2">Date</label>
+          <label className="block text-sm font-semibold mb-2 text-gray-300">
+            Date
+          </label>
           <input
             type="date"
             name="date"
             value={formData.date}
             onChange={handleChange}
-            className="w-full p-3 rounded-lg bg-gray-700 text-gray-100 border border-gray-600 focus:ring-2 focus:ring-blue-500"
+            className="w-full p-3 rounded-lg bg-[#2B2B2B] text-gray-100 border border-gray-700 focus:ring-2 focus:ring-[#1E2D5B]"
           />
         </div>
 
-        {/* Image */}
+        {/* Image Upload */}
         <div>
-          <label className="block text-sm font-semibold mb-2">Upload Image</label>
+          <label className="block text-sm font-semibold mb-2 text-gray-300">
+            Upload Image
+          </label>
           <input
             type="file"
             name="images"
             accept="image/*"
             onChange={handleFileChange}
-            className="w-full text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700"
+            className="w-full text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#1E2D5B] file:text-white hover:file:bg-[#253b7a]"
           />
         </div>
 
+        {/* Submit */}
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-3 rounded-lg bg-green-600 text-white font-semibold hover:bg-green-700 transition disabled:opacity-50"
+          className="w-full py-3 rounded-lg bg-green-700 hover:bg-green-800 text-white font-semibold transition disabled:opacity-50"
         >
           {loading ? "Saving..." : "💾 Add News"}
         </button>
