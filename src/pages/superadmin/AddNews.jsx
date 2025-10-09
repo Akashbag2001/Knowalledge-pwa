@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
 import { toast } from "react-toastify";
 import useHttp from "../../api/useHttp";
+import PreviewNews from "../../components/superadmin/PreviewNews";
 
 // ✅ Reusable Rich Text Editor with Dark UI
 const RichTextEditor = ({ value, onChange, placeholder, minHeight = "150px" }) => {
+  const [showPreview, setShowPreview] = useState(false);
   const editorRef = useRef(null);
 
   // ✅ FIXED: update editor when value changes (important for reset)
@@ -41,7 +43,10 @@ const RichTextEditor = ({ value, onChange, placeholder, minHeight = "150px" }) =
 
   return (
     <div className="border border-gray-700 rounded-lg overflow-hidden bg-[#1E1E1E] shadow-inner">
+
+      
       <div className="flex flex-wrap gap-1 p-2 bg-[#2B2B2B] border-b border-gray-700">
+        
         {[
           { cmd: "bold", label: "B", style: "font-bold" },
           { cmd: "italic", label: "I", style: "italic" },
@@ -230,6 +235,7 @@ const AddNews = () => {
 
   return (
     <div className="p-8 min-h-screen bg-[#121212] text-gray-100">
+      
       <h1 className="text-3xl font-bold mb-8 text-[#1f4edb]">📰 Add News</h1>
 
       <form
