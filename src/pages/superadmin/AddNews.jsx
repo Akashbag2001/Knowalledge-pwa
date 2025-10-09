@@ -19,13 +19,30 @@ const RichTextEditor = ({ value, onChange, placeholder, minHeight = "150px" }) =
   };
 
   const execCommand = (command, value = null) => {
+    const editor = editorRef.current;
+    if (!editor) return;
+
+    // Focus the editor first
+    editor.focus();
+
+    // Restore the last selection if user clicked toolbar
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) {
+      const range = document.createRange();
+      range.selectNodeContents(editor);
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }
+
+    // Execute the command safely
     document.execCommand(command, false, value);
-    editorRef.current?.focus();
   };
 
   const handleColorChange = (e, command) => {
     execCommand(command, e.target.value);
   };
+
+   const isActive = (cmd) => activeCommands.includes(cmd);
 
   return (
     <div className="border border-gray-700 rounded-lg overflow-hidden bg-[#1E1E1E] shadow-inner">
@@ -48,7 +65,7 @@ const RichTextEditor = ({ value, onChange, placeholder, minHeight = "150px" }) =
 
         <div className="w-px bg-gray-700 mx-1"></div>
 
-        <button
+        {/* <button
           onClick={() => execCommand("insertUnorderedList")}
           type="button"
           className="px-3 py-1 bg-[#1E2D5B]/40 border border-gray-700 rounded hover:bg-[#1E2D5B]/60 text-gray-200"
@@ -61,7 +78,7 @@ const RichTextEditor = ({ value, onChange, placeholder, minHeight = "150px" }) =
           className="px-3 py-1 bg-[#1E2D5B]/40 border border-gray-700 rounded hover:bg-[#1E2D5B]/60 text-gray-200"
         >
           1. List
-        </button>
+        </button> */}
 
         <div className="w-px bg-gray-700 mx-1"></div>
 
@@ -105,23 +122,26 @@ const RichTextEditor = ({ value, onChange, placeholder, minHeight = "150px" }) =
 
         <div className="w-px bg-gray-700 mx-1"></div>
 
-        <button
+        {/* <button
           onClick={() => execCommand("removeFormat")}
           type="button"
           className="px-3 py-1 bg-red-700/40 border border-gray-700 rounded hover:bg-red-700/60 text-gray-200"
         >
           ✕
-        </button>
+        </button> */}
       </div>
 
       <div
         ref={editorRef}
         contentEditable
+        suppressContentEditableWarning={true}
         onInput={handleInput}
+        onClick={(e) => e.stopPropagation()} // prevent losing selection
         className="p-4 text-gray-200 focus:outline-none"
         style={{ minHeight }}
         data-placeholder={placeholder}
       ></div>
+
 
       <style jsx>{`
         [contentEditable]:empty:before {
@@ -246,7 +266,7 @@ const AddNews = () => {
 
   return (
     <div className="p-8 min-h-screen bg-[#121212] text-gray-100">
-      <h1 className="text-3xl font-bold mb-8 text-[#1E2D5B]">📰 Add News</h1>
+      <h1 className="text-3xl font-bold mb-8 text-[#1f4edb]">📰 Add News</h1>
 
       <form
         onSubmit={handleSubmit}
