@@ -168,6 +168,16 @@ const AddNews = () => {
   };
 
   const handleRichTextChange = (field, value) => {
+    if (field === "smallContent") {
+      // Strip HTML tags and count words
+      const plainText = value.replace(/<[^>]*>/g, " ").trim();
+      const wordCount = plainText.split(/\s+/).filter(Boolean).length;
+
+      if (wordCount > 80) {
+        toast.warn("Sorry in First Content Box you can add only 80 words!!");
+        return; // Prevent updating state beyond 80 words
+      }
+    }
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -189,49 +199,49 @@ const AddNews = () => {
   };
 
   const handleFileChange = (e) => {
-  const file = e.target.files[0];
-  setFormData((prev) => ({ ...prev, images: file }));
-};
+    const file = e.target.files[0];
+    setFormData((prev) => ({ ...prev, images: file }));
+  };
 
- const handleSubmit = async (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  if (!formData.heading || !formData.subHeading || !formData.date) {
-    toast.warn("⚠️ Please fill all required fields");
-    return;
-  }
-
-  const newsData = new FormData();
-  Object.entries(formData).forEach(([key, value]) => {
-    if (key === "topics") {
-      newsData.append(key, JSON.stringify(value));
-    } else if (key === "images" && value) {
-      newsData.append("images", value); // append single image
-    } else {
-      newsData.append(key, value);
+    if (!formData.heading || !formData.subHeading || !formData.date) {
+      toast.warn("⚠️ Please fill all required fields");
+      return;
     }
-  });
 
-  try {
-    await sendRequest("/superAdmin/news", "POST", newsData, {
-      headers: { "Content-Type": "multipart/form-data" },
+    const newsData = new FormData();
+    Object.entries(formData).forEach(([key, value]) => {
+      if (key === "topics") {
+        newsData.append(key, JSON.stringify(value));
+      } else if (key === "images" && value) {
+        newsData.append("images", value); // append single image
+      } else {
+        newsData.append(key, value);
+      }
     });
-    toast.success("✅ News added successfully!");
-    setFormData({
-      heading: "",
-      subHeading: "",
-      smallContent: "",
-      largeContent: "",
-      contentType: "Current Affair",
-      topics: [],
-      contentFor: "",
-      date: "",
-      images: null,
-    });
-  } catch {
-    toast.error("❌ Failed to add news");
-  }
-};
+
+    try {
+      await sendRequest("/superAdmin/news", "POST", newsData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      toast.success("✅ News added successfully!");
+      setFormData({
+        heading: "",
+        subHeading: "",
+        smallContent: "",
+        largeContent: "",
+        contentType: "Current Affair",
+        topics: [],
+        contentFor: "",
+        date: "",
+        images: null,
+      });
+    } catch {
+      toast.error("❌ Failed to add news");
+    }
+  };
 
 
   return (
@@ -269,19 +279,30 @@ const AddNews = () => {
         </div>
 
         {/* Small & Large Content */}
-        {["smallContent", "largeContent"].map((field, i) => (
-          <div key={i}>
-            <label className="block text-sm font-semibold mb-2 text-gray-300 capitalize">
-              {field.replace("Content", " Content")}
-            </label>
-            <RichTextEditor
-              value={formData[field]}
-              onChange={(value) => handleRichTextChange(field, value)}
-              placeholder={`Enter ${field.replace("Content", " content")}...`}
-              minHeight={field === "largeContent" ? "250px" : "150px"}
-            />
-          </div>
-        ))}
+        {["smallContent", "largeContent"].map((field, i) => {
+          const plainText = formData[field]?.replace(/<[^>]*>/g, " ").trim() || "";
+          const wordCount = plainText.split(/\s+/).filter(Boolean).length;
+
+          return (
+            <div key={i}>
+              <label className="block text-sm font-semibold mb-2 text-gray-300 capitalize">
+                {field.replace("Content", " Content")}
+              </label>
+              <RichTextEditor
+                value={formData[field]}
+                onChange={(value) => handleRichTextChange(field, value)}
+                placeholder={`Enter ${field.replace("Content", " content")}...`}
+                minHeight={field === "largeContent" ? "250px" : "150px"}
+              />
+              {field === "smallContent" && (
+                <p className={`text-sm mt-1 ${wordCount > 80 ? "text-red-500" : "text-gray-400"}`}>
+                  {wordCount}/80 words
+                </p>
+              )}
+            </div>
+          );
+        })}
+
 
         {/* Content Type */}
         <div>
@@ -315,8 +336,8 @@ const AddNews = () => {
                     key={index}
                     onClick={() => handleTopicToggle(topicName)}
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition ${isSelected
-                        ? "bg-[#1E2D5B] text-white"
-                        : "bg-[#2B2B2B] text-gray-300 hover:bg-[#1E2D5B]/70 hover:text-white"
+                      ? "bg-[#1E2D5B] text-white"
+                      : "bg-[#2B2B2B] text-gray-300 hover:bg-[#1E2D5B]/70 hover:text-white"
                       }`}
                   >
                     {topicName}
