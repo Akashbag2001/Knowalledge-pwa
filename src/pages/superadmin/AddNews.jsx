@@ -5,7 +5,7 @@ import PreviewNews from "../../components/superadmin/PreviewNews";
 
 // ✅ Reusable Rich Text Editor with Dark UI
 const RichTextEditor = ({ value, onChange, placeholder, minHeight = "150px" }) => {
-  const [showPreview, setShowPreview] = useState(false);
+ 
   const editorRef = useRef(null);
 
   // ✅ FIXED: update editor when value changes (important for reset)
@@ -44,9 +44,9 @@ const RichTextEditor = ({ value, onChange, placeholder, minHeight = "150px" }) =
   return (
     <div className="border border-gray-700 rounded-lg overflow-hidden bg-[#1E1E1E] shadow-inner">
 
-      
+
       <div className="flex flex-wrap gap-1 p-2 bg-[#2B2B2B] border-b border-gray-700">
-        
+
         {[
           { cmd: "bold", label: "B", style: "font-bold" },
           { cmd: "italic", label: "I", style: "italic" },
@@ -127,6 +127,7 @@ const RichTextEditor = ({ value, onChange, placeholder, minHeight = "150px" }) =
 // ✅ Add News (Dark UI)
 const AddNews = () => {
   const { sendRequest, loading } = useHttp();
+   const [showPreview, setShowPreview] = useState(false);
   const [topics, setTopics] = useState([]);
   const [formData, setFormData] = useState({
     heading: "",
@@ -235,7 +236,7 @@ const AddNews = () => {
 
   return (
     <div className="p-8 min-h-screen bg-[#121212] text-gray-100">
-      
+
       <h1 className="text-3xl font-bold mb-8 text-[#1f4edb]">📰 Add News</h1>
 
       <form
@@ -316,11 +317,10 @@ const AddNews = () => {
                     type="button"
                     key={index}
                     onClick={() => handleTopicToggle(topicName)}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
-                      isSelected
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition ${isSelected
                         ? "bg-[#1E2D5B] text-white"
                         : "bg-[#2B2B2B] text-gray-300 hover:bg-[#1E2D5B]/70 hover:text-white"
-                    }`}
+                      }`}
                   >
                     {topicName}
                   </button>
@@ -369,7 +369,15 @@ const AddNews = () => {
           />
         </div>
 
+        <button
+          type="button"
+          onClick={() => setShowPreview(true)}
+          className="w-full py-3 rounded-lg bg-[#1E2D5B] hover:bg-[#253b7a] text-white font-semibold transition"
+        >
+          👁️ Preview News
+        </button>
         {/* Submit */}
+
         <button
           type="submit"
           disabled={loading}
@@ -378,6 +386,11 @@ const AddNews = () => {
           {loading ? "Saving..." : "💾 Add News"}
         </button>
       </form>
+      <PreviewNews
+        open={showPreview}
+        onClose={() => setShowPreview(false)}
+        formData={formData}
+      />
     </div>
   );
 };

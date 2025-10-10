@@ -21,6 +21,7 @@ import ViewUsers from "./pages/superadmin/ViewUsers";
 import AddSchool from "./pages/superadmin/AddSchool";
 import AddTopic from "./pages/superadmin/AddTopic";
 import AddNews from "./pages/superadmin/AddNews"; // ✅ Import AddNews
+import ErrorBoundary from "./ErrorBoundary";
 
 function AnimatedRoutes() {
   const location = useLocation();
@@ -86,7 +87,9 @@ function AnimatedRoutes() {
               path="admin/add-news"
               element={
                 <ProtectedRoute role="superadmin">
-                  <AddNews />
+                  <ErrorBoundary>
+                    <AddNews />
+                  </ErrorBoundary>
                 </ProtectedRoute>
               }
             />
