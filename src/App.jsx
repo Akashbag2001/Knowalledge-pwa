@@ -23,6 +23,7 @@ import AddTopic from "./pages/superadmin/AddTopic";
 import AddNews from "./pages/superadmin/AddNews"; // ✅ Import AddNews
 import ErrorBoundary from "./ErrorBoundary";
 import Profile from "./pages/users/Profile";
+import News from "./pages/users/News";
 
 function AnimatedRoutes() {
   const location = useLocation();
@@ -59,6 +60,14 @@ function AnimatedRoutes() {
               element={
                 <ProtectedRoute>
                   <Profile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="news"
+              element={
+                <ProtectedRoute>
+                  <News />
                 </ProtectedRoute>
               }
             />

@@ -1,50 +1,42 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom"; // ✅ import navigate
+import { useNavigate, Navigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import useHttp from "../api/useHttp";
+import useHttp from "../api/useHttp"; // your custom hook for API calls
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const { sendRequest, loading } = useHttp();
-  const [topics, setTopics] = useState([]);
-  const [selectedTopics, setSelectedTopics] = useState([]);
-  const navigate = useNavigate(); // ✅ navigation hook
-
-  // ✅ Get userId from localStorage
   const user = JSON.parse(localStorage.getItem("user"));
-  const userId = user?._id;
 
-  // ✅ On mount, check if topics are already saved for this user
+  // Redirect to news if topics already exist
+  if (user?.topics && user.topics.length > 0) {
+    return <Navigate to="/news" replace />;
+  }
+
+  const [availableTopics, setAvailableTopics] = useState([]);
+  const [selectedTopics, setSelectedTopics] = useState([]);
+
   useEffect(() => {
-    const checkExistingTopics = async () => {
+    if (!user) {
+      toast.error("❌ User not found, please login.");
+      navigate("/login");
+      return;
+    }
+
+    const fetchTopics = async () => {
       try {
-        const savedTopics =
-          JSON.parse(localStorage.getItem("selectedTopics")) || [];
-
-        if (savedTopics.length > 0) {
-          // If topics already exist in localStorage, navigate to news
-          navigate("/news");
-          return;
-        }
-
-        // Otherwise, fetch topics for selection
         const data = await sendRequest("/superAdmin/topics", "GET");
-        const fetchedTopics = data?.topics || data || [];
-        setTopics(fetchedTopics);
+        const topicsList = data?.topics || data || [];
+        setAvailableTopics(topicsList);
       } catch (error) {
         console.error("Error fetching topics:", error.message);
         toast.error("❌ Failed to fetch topics");
       }
     };
 
-    checkExistingTopics();
+    fetchTopics();
   }, []);
 
-  // ✅ Save selected topics to localStorage whenever they change
-  useEffect(() => {
-    localStorage.setItem("selectedTopics", JSON.stringify(selectedTopics));
-  }, [selectedTopics]);
-
-  // Toggle topic selection
   const toggleTopic = (topic) => {
     setSelectedTopics((prev) =>
       prev.includes(topic)
@@ -53,104 +45,69 @@ const Dashboard = () => {
     );
   };
 
-  // Save selected topics
   const saveTopics = async () => {
-    if (!userId) {
-      toast.error("❌ No user ID found");
-      return;
-    }
-
-    if (selectedTopics.length < 5) {
-      toast.warn("⚠️ Please select at least 5 topics before saving.");
+    if (selectedTopics.length < 1) {
+      toast.warn("⚠️ Please select at least 1 topic");
       return;
     }
 
     try {
-      await sendRequest(`/user/setTopicsFirst/${userId}`, "POST", {
+      // Call API to save selected topics
+      await sendRequest(`/user/setTopicsFirst/${user._id}`, "POST", {
         topics: selectedTopics,
       });
+
+      // Update localStorage as well
+      const updatedUser = { ...user, topics: selectedTopics };
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+
       toast.success("✅ Topics saved successfully!");
-      navigate("/news"); // ✅ Navigate to news after saving
+      navigate("/news");
     } catch (error) {
       console.error("Error saving topics:", error.message);
       toast.error("❌ Failed to save topics");
     }
   };
 
-  // Delete a topic
-  const deleteTopic = async (topic) => {
-    if (!userId) {
-      toast.error("❌ No user ID found");
-      return;
-    }
-    try {
-      await sendRequest(`/user/deleteTopics/${userId}`, "DELETE", {
-        topics: [topic],
-      });
-      setSelectedTopics((prev) => prev.filter((t) => t !== topic));
-      toast.success(`🗑️ "${topic}" deleted successfully!`);
-    } catch (error) {
-      console.error("Error deleting topic:", error.message);
-      toast.error("❌ Failed to delete topic");
-    }
-  };
+  if (loading) {
+    return (
+      <div className="p-6 min-h-screen bg-gray-900 text-gray-100 flex items-center justify-center">
+        <p className="text-gray-400">Loading topics...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 min-h-screen bg-gray-900 text-gray-100">
-      <h1 className="text-3xl font-bold mb-6 text-white">📊 Dashboard</h1>
+      <h1 className="text-3xl font-bold mb-6 text-white">📊 Select Your Topics</h1>
 
-      {loading ? (
-        <p className="text-gray-400">Loading topics...</p>
-      ) : topics.length === 0 ? (
-        <p className="text-gray-400">No topics found.</p>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {topics.map((topic, index) => {
-            const topicName = topic.name || topic.title || topic;
-            const isSelected = selectedTopics.includes(topicName);
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        {availableTopics.map((topic, idx) => {
+          const topicName = topic.name || topic.title || topic;
+          const isSelected = selectedTopics.includes(topicName);
 
-            return (
-              <div
-                key={topic._id || index}
-                onClick={() => toggleTopic(topicName)}
-                className={`p-6 rounded-2xl shadow-md cursor-pointer text-center font-medium transition transform duration-200
-                  ${
-                    isSelected
-                      ? "bg-blue-600 text-white scale-105 shadow-xl"
-                      : "bg-gray-800 text-gray-300 hover:bg-blue-700 hover:text-white hover:scale-105"
-                  }`}
-              >
-                {topicName}
-              </div>
-            );
-          })}
-        </div>
-      )}
+          return (
+            <div
+              key={idx}
+              onClick={() => toggleTopic(topicName)}
+              className={`p-4 text-center rounded-lg cursor-pointer font-medium transition-all
+                ${
+                  isSelected
+                    ? "bg-blue-600 text-white scale-105 shadow-lg"
+                    : "bg-gray-800 text-gray-300 hover:bg-blue-700 hover:text-white hover:scale-105"
+                }`}
+            >
+              {topicName}
+            </div>
+          );
+        })}
+      </div>
 
       {selectedTopics.length > 0 && (
-        <div className="mt-8 bg-gray-800 p-6 rounded-xl shadow-lg">
-          <h2 className="text-lg font-semibold text-white">
-            ✅ Selected Topics ({selectedTopics.length})
-          </h2>
-          <ul className="mt-4 space-y-3">
-            {selectedTopics.map((t, i) => (
-              <li
-                key={i}
-                className="flex justify-between items-center bg-gray-700 p-3 rounded-lg"
-              >
-                <span>{t}</span>
-                <button
-                  onClick={() => deleteTopic(t)}
-                  className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700 transition"
-                >
-                  Delete
-                </button>
-              </li>
-            ))}
-          </ul>
+        <div className="mt-6 flex justify-center">
           <button
             onClick={saveTopics}
-            className="mt-6 w-full px-5 py-3 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 transition"
+            className="px-6 py-3 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 transition"
           >
             💾 Save Topics
           </button>
