@@ -1,35 +1,42 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom"; // ✅ import navigate
 import { toast } from "react-toastify";
-import useHttp from "../api/useHttp"; // ✅ adjust path
+import useHttp from "../api/useHttp";
 
 const Dashboard = () => {
   const { sendRequest, loading } = useHttp();
   const [topics, setTopics] = useState([]);
   const [selectedTopics, setSelectedTopics] = useState([]);
+  const navigate = useNavigate(); // ✅ navigation hook
 
   // ✅ Get userId from localStorage
   const user = JSON.parse(localStorage.getItem("user"));
   const userId = user?._id;
 
-  // Fetch topics on mount
+  // ✅ On mount, check if topics are already saved for this user
   useEffect(() => {
-    const fetchTopics = async () => {
+    const checkExistingTopics = async () => {
       try {
+        const savedTopics =
+          JSON.parse(localStorage.getItem("selectedTopics")) || [];
+
+        if (savedTopics.length > 0) {
+          // If topics already exist in localStorage, navigate to news
+          navigate("/news");
+          return;
+        }
+
+        // Otherwise, fetch topics for selection
         const data = await sendRequest("/superAdmin/topics", "GET");
         const fetchedTopics = data?.topics || data || [];
         setTopics(fetchedTopics);
-
-        // ✅ Once topics are fetched, restore selectedTopics
-        const savedTopics =
-          JSON.parse(localStorage.getItem("selectedTopics")) || [];
-        setSelectedTopics(savedTopics);
       } catch (error) {
         console.error("Error fetching topics:", error.message);
         toast.error("❌ Failed to fetch topics");
       }
     };
 
-    fetchTopics();
+    checkExistingTopics();
   }, []);
 
   // ✅ Save selected topics to localStorage whenever they change
@@ -63,6 +70,7 @@ const Dashboard = () => {
         topics: selectedTopics,
       });
       toast.success("✅ Topics saved successfully!");
+      navigate("/news"); // ✅ Navigate to news after saving
     } catch (error) {
       console.error("Error saving topics:", error.message);
       toast.error("❌ Failed to save topics");

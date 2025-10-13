@@ -1,5 +1,5 @@
 // src/components/Layout.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
@@ -7,8 +7,10 @@ const Layout = () => {
   const { user, logout } = useAuth();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const navigate = useNavigate();
+  const profileRef = useRef(null);
 
   // Scroll effect
   useEffect(() => {
@@ -17,7 +19,7 @@ const Layout = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Mouse effect
+  // Mouse background animation
   useEffect(() => {
     const handleMouseMove = (e) =>
       setMousePosition({ x: e.clientX, y: e.clientY });
@@ -25,8 +27,20 @@ const Layout = () => {
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
+  // Close dropdown if clicked outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (profileRef.current && !profileRef.current.contains(event.target)) {
+        setIsProfileMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   const handleLogout = () => {
     logout();
+    setIsProfileMenuOpen(false);
     setIsMobileMenuOpen(false);
     navigate("/login");
   };
@@ -63,11 +77,10 @@ const Layout = () => {
 
       {/* Navbar */}
       <header
-        className={`fixed w-full z-50 transition-all duration-500 ${
-          isScrolled
-            ? "bg-neutral-950/90 backdrop-blur-xl border-b border-neutral-800 shadow-lg shadow-neutral-900/40"
-            : "bg-transparent"
-        }`}
+        className={`fixed w-full z-50 transition-all duration-500 ${isScrolled
+          ? "bg-neutral-950/90 backdrop-blur-xl border-b border-neutral-800 shadow-lg shadow-neutral-900/40"
+          : "bg-transparent"
+          }`}
       >
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
@@ -114,18 +127,57 @@ const Layout = () => {
                   {user.role === "superadmin" && (
                     <button
                       onClick={() => navigate("/admin")}
-                      className="px-4 py-2 text-neutral-400 hover:text-amber-400 transition-all duration-300 rounded-xl hover:bg-neutral-800 flex items-center gap-1"
+                      className="px-4 py-2 text-neutral-400 hover:text-amber-400 transition-all duration-300 rounded-xl hover:bg-neutral-800"
                     >
                       Admin Panel
                     </button>
                   )}
 
-                  <button
-                    onClick={handleLogout}
-                    className="group px-5 py-2 bg-red-500 text-white rounded-2xl font-semibold text-sm hover:bg-red-600 transition-all duration-300 flex items-center gap-2"
-                  >
-                    Logout
-                  </button>
+                  {/* Profile Icon with Click Dropdown */}
+                  <div className="relative" ref={profileRef}>
+                    <button
+                      onClick={() =>
+                        setIsProfileMenuOpen((prev) => !prev)
+                      }
+                      className="w-10 h-10 rounded-full bg-neutral-800 flex items-center justify-center text-neutral-300 hover:text-blue-400 hover:bg-neutral-700 transition-all duration-300"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth="1.5"
+                        stroke="currentColor"
+                        className="w-6 h-6"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M15.75 7.5a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.5 20.25a8.25 8.25 0 0115 0"
+                        />
+                      </svg>
+                    </button>
+
+                    {/* Dropdown */}
+                    {isProfileMenuOpen && (
+                      <div className="absolute right-0 mt-2 w-40 bg-neutral-900 border border-neutral-800 rounded-xl shadow-lg transition-all duration-300 z-50">
+                        <button
+                          onClick={() => {
+                            navigate("/profile");
+                            setIsProfileMenuOpen(false);
+                          }}
+                          className="block w-full text-left px-4 py-2 text-neutral-300 hover:text-blue-400 hover:bg-neutral-800 rounded-t-xl transition-all"
+                        >
+                          Profile
+                        </button>
+                        <button
+                          onClick={handleLogout}
+                          className="block w-full text-left px-4 py-2 text-red-400 hover:text-red-500 hover:bg-neutral-800 rounded-b-xl transition-all"
+                        >
+                          Logout
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </>
               ) : (
                 <>
@@ -185,7 +237,7 @@ const Layout = () => {
           </div>
         </nav>
 
-        {/* Mobile Menu Drawer */}
+        {/* Mobile Drawer */}
         {isMobileMenuOpen && (
           <div className="md:hidden bg-neutral-950 border-t border-neutral-800">
             <div className="flex flex-col p-4 space-y-4">
@@ -198,6 +250,7 @@ const Layout = () => {
               >
                 Home
               </button>
+
               {user ? (
                 <>
                   {user.role === "user" && (
@@ -222,6 +275,15 @@ const Layout = () => {
                       Admin Panel
                     </button>
                   )}
+                  <button
+                    onClick={() => {
+                      navigate("/profile");
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className="px-4 py-2 text-left text-neutral-300 hover:text-blue-400 hover:bg-neutral-800 rounded-xl transition-all"
+                  >
+                    Profile
+                  </button>
                   <button
                     onClick={handleLogout}
                     className="px-4 py-2 text-left text-red-400 hover:text-red-500 hover:bg-neutral-800 rounded-xl transition-all"
