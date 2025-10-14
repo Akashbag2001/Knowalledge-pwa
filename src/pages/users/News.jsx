@@ -1,6 +1,6 @@
 const News = () => {
   return (
-    <div>News</div>
+    <div className="flex items-center justify-center">News</div>
   )
 }
 export default News

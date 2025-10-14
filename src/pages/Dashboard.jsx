@@ -8,21 +8,21 @@ const Dashboard = () => {
   const { sendRequest, loading } = useHttp();
   const user = JSON.parse(localStorage.getItem("user"));
 
-  // Redirect to news if topics already exist
+  const [availableTopics, setAvailableTopics] = useState([]);
+  const [selectedTopics, setSelectedTopics] = useState([]);
+
+  // ✅ If user not logged in
+  if (!user) {
+    toast.error("❌ User not found, please login.");
+    return <Navigate to="/login" replace />;
+  }
+
+  // ✅ Redirect only if topics exist & not empty
   if (user?.topics && user.topics.length > 0) {
     return <Navigate to="/news" replace />;
   }
 
-  const [availableTopics, setAvailableTopics] = useState([]);
-  const [selectedTopics, setSelectedTopics] = useState([]);
-
   useEffect(() => {
-    if (!user) {
-      toast.error("❌ User not found, please login.");
-      navigate("/login");
-      return;
-    }
-
     const fetchTopics = async () => {
       try {
         const data = await sendRequest("/superAdmin/topics", "GET");
@@ -47,17 +47,15 @@ const Dashboard = () => {
 
   const saveTopics = async () => {
     if (selectedTopics.length < 1) {
-      toast.warn("⚠️ Please select at least 1 topic");
+      toast.warn("⚠️ Please select at least one topic");
       return;
     }
 
     try {
-      // Call API to save selected topics
       await sendRequest(`/user/setTopicsFirst/${user._id}`, "POST", {
         topics: selectedTopics,
       });
 
-      // Update localStorage as well
       const updatedUser = { ...user, topics: selectedTopics };
       localStorage.setItem("user", JSON.stringify(updatedUser));
 
@@ -79,8 +77,11 @@ const Dashboard = () => {
 
   return (
     <div className="p-6 min-h-screen bg-gray-900 text-gray-100">
-      <h1 className="text-3xl font-bold mb-6 text-white">📊 Select Your Topics</h1>
+      <h1 className="text-3xl font-bold mb-6 text-white text-center sm:text-left">
+        📚 Select Your Topics
+      </h1>
 
+      {/* Topics Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {availableTopics.map((topic, idx) => {
           const topicName = topic.name || topic.title || topic;
@@ -103,6 +104,7 @@ const Dashboard = () => {
         })}
       </div>
 
+      {/* Save Button */}
       {selectedTopics.length > 0 && (
         <div className="mt-6 flex justify-center">
           <button
