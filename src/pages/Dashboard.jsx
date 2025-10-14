@@ -1,28 +1,32 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Navigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import useHttp from "../api/useHttp"; // your custom hook for API calls
+import useHttp from "../api/useHttp";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const { sendRequest, loading } = useHttp();
-  const user = JSON.parse(localStorage.getItem("user"));
 
   const [availableTopics, setAvailableTopics] = useState([]);
   const [selectedTopics, setSelectedTopics] = useState([]);
+  const [redirectPath, setRedirectPath] = useState(null);
 
-  // ✅ If user not logged in
-  if (!user) {
-    toast.error("❌ User not found, please login.");
-    return <Navigate to="/login" replace />;
-  }
-
-  // ✅ Redirect only if topics exist & not empty
-  if (user?.topics && user.topics.length > 0) {
-    return <Navigate to="/news" replace />;
-  }
+  const user = JSON.parse(localStorage.getItem("user"));
 
   useEffect(() => {
+    // ✅ Redirect handling done inside useEffect (safe)
+    if (!user) {
+      toast.error("❌ User not found, please login.");
+      setRedirectPath("/login");
+      return;
+    }
+
+    if (user?.topics && user.topics.length > 0) {
+      setRedirectPath("/news");
+      return;
+    }
+
+    // ✅ Fetch topics only if user exists & has no topics
     const fetchTopics = async () => {
       try {
         const data = await sendRequest("/superAdmin/topics", "GET");
@@ -66,6 +70,11 @@ const Dashboard = () => {
       toast.error("❌ Failed to save topics");
     }
   };
+
+  // ✅ Handle redirects safely after hooks
+  if (redirectPath) {
+    return <Navigate to={redirectPath} replace />;
+  }
 
   if (loading) {
     return (
