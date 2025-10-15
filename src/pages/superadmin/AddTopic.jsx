@@ -1,15 +1,14 @@
-// src/pages/superadmin/AddTopic.jsx
 import React, { useEffect, useState } from "react";
 import useHttp from "../../api/useHttp";
 import { toast } from "react-toastify";
 
-const AddTopic = () => {
+const AddNews = () => {
   const { sendRequest, loading } = useHttp();
-  const [topicName, setTopicName] = useState("");
-  const [topicImage, setTopicImage] = useState(null);
+  const [name, setName] = useState("");
+  const [image, setImage] = useState(null);
   const [topics, setTopics] = useState([]);
 
-  // ✅ Fetch topics
+  // ✅ Fetch all topics
   const fetchTopics = async () => {
     try {
       const res = await sendRequest("/superAdmin/topics", "GET");
@@ -17,7 +16,7 @@ const AddTopic = () => {
         setTopics(res.topics || []);
       }
     } catch (err) {
-      toast.error("Failed to load topics");
+      toast.error("❌ Failed to load topics");
     }
   };
 
@@ -25,15 +24,16 @@ const AddTopic = () => {
     fetchTopics();
   }, []);
 
-  // ✅ Add topic (with image)
+  // ✅ Add new topic (name + image)
   const handleAddTopic = async (e) => {
     e.preventDefault();
-    if (!topicName.trim()) return toast.error("Topic name is required");
-    if (!topicImage) return toast.error("Please upload a topic image");
+
+    if (!name.trim()) return toast.error("Topic name is required");
+    if (!image) return toast.error("Please upload a topic image");
 
     const formData = new FormData();
-    formData.append("name", topicName);
-    formData.append("image", topicImage);
+    formData.append("name", name);
+    formData.append("image", image);
 
     try {
       const res = await sendRequest("/superAdmin/topics", "POST", formData, {
@@ -42,8 +42,8 @@ const AddTopic = () => {
 
       if (res.success) {
         toast.success("✅ Topic added successfully!");
-        setTopicName("");
-        setTopicImage(null);
+        setName("");
+        setImage(null);
         fetchTopics();
       } else {
         toast.error(res.message || "Failed to add topic");
@@ -66,8 +66,8 @@ const AddTopic = () => {
           {/* Topic Name */}
           <input
             type="text"
-            value={topicName}
-            onChange={(e) => setTopicName(e.target.value)}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
             placeholder="Enter topic name"
             className="border border-gray-600 bg-gray-900 text-white p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition"
           />
@@ -78,12 +78,12 @@ const AddTopic = () => {
             <input
               type="file"
               accept="image/*"
-              onChange={(e) => setTopicImage(e.target.files[0])}
+              onChange={(e) => setImage(e.target.files[0])}
               className="border border-gray-600 bg-gray-900 text-white p-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
             />
-            {topicImage && (
+            {image && (
               <img
-                src={URL.createObjectURL(topicImage)}
+                src={URL.createObjectURL(image)}
                 alt="preview"
                 className="w-32 h-32 object-cover rounded-lg mt-3 border border-gray-700"
               />
@@ -131,4 +131,4 @@ const AddTopic = () => {
   );
 };
 
-export default AddTopic;
+export default AddNews;
