@@ -54,7 +54,9 @@ function AnimatedRoutes() {
               path="dashboard"
               element={
                 <ProtectedRoute>
-                  <Dashboard />
+                  <ErrorBoundary>
+                    <Dashboard />
+                  </ErrorBoundary>
                 </ProtectedRoute>
               }
             />

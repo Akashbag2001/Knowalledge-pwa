@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import useHttp from "../../api/useHttp";
 import PreviewNews from "../../components/superadmin/PreviewNews";
 
-// ✅ Reusable Rich Text Editor
+/* ✅ Reusable Rich Text Editor */
 const RichTextEditor = ({ value, onChange, placeholder, minHeight = "150px" }) => {
   const editorRef = useRef(null);
 
@@ -36,6 +36,7 @@ const RichTextEditor = ({ value, onChange, placeholder, minHeight = "150px" }) =
 
   return (
     <div className="border border-gray-700 rounded-lg overflow-hidden bg-[#1E1E1E] shadow-inner">
+      {/* Toolbar */}
       <div className="flex flex-wrap gap-1 p-2 bg-[#2B2B2B] border-b border-gray-700">
         {[
           { cmd: "bold", label: "B", style: "font-bold" },
@@ -52,7 +53,9 @@ const RichTextEditor = ({ value, onChange, placeholder, minHeight = "150px" }) =
             {label}
           </button>
         ))}
+
         <div className="w-px bg-gray-700 mx-1"></div>
+
         {[{ cmd: "justifyLeft", label: "⬅" }, { cmd: "justifyCenter", label: "↔" }, { cmd: "justifyRight", label: "➡" }].map(
           ({ cmd, label }) => (
             <button
@@ -65,18 +68,32 @@ const RichTextEditor = ({ value, onChange, placeholder, minHeight = "150px" }) =
             </button>
           )
         )}
+
         <div className="w-px bg-gray-700 mx-1"></div>
+
         <div className="flex items-center gap-2">
           <label className="flex items-center gap-1 px-2 py-1 bg-[#1E2D5B]/40 border border-gray-700 rounded hover:bg-[#1E2D5B]/60 cursor-pointer text-gray-200">
             <span className="text-sm">A</span>
-            <input type="color" onChange={(e) => handleColorChange(e, "foreColor")} className="w-6 h-6 cursor-pointer border-none bg-transparent" title="Text Color" />
+            <input
+              type="color"
+              onChange={(e) => handleColorChange(e, "foreColor")}
+              className="w-6 h-6 cursor-pointer border-none bg-transparent"
+              title="Text Color"
+            />
           </label>
           <label className="flex items-center gap-1 px-2 py-1 bg-[#1E2D5B]/40 border border-gray-700 rounded hover:bg-[#1E2D5B]/60 cursor-pointer text-gray-200">
             <span className="text-sm">🎨</span>
-            <input type="color" onChange={(e) => handleColorChange(e, "backColor")} className="w-6 h-6 cursor-pointer border-none bg-transparent" title="Background Color" />
+            <input
+              type="color"
+              onChange={(e) => handleColorChange(e, "backColor")}
+              className="w-6 h-6 cursor-pointer border-none bg-transparent"
+              title="Background Color"
+            />
           </label>
         </div>
       </div>
+
+      {/* Editor Area */}
       <div
         ref={editorRef}
         contentEditable
@@ -97,7 +114,7 @@ const RichTextEditor = ({ value, onChange, placeholder, minHeight = "150px" }) =
   );
 };
 
-// ✅ AddNews Component
+/* ✅ Add News Component */
 const AddNews = () => {
   const { sendRequest, loading } = useHttp();
   const [showPreview, setShowPreview] = useState(false);
@@ -116,6 +133,7 @@ const AddNews = () => {
     images: null,
   });
 
+  /* Fetch Topics */
   useEffect(() => {
     const fetchTopics = async () => {
       try {
@@ -128,21 +146,19 @@ const AddNews = () => {
     fetchTopics();
   }, []);
 
-  const handleChange = (e) => setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  const handleChange = (e) => setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
   const handleRichTextChange = (field, value) => {
     if (field === "smallContent") {
       const plainText = value.replace(/<[^>]*>/g, " ").trim();
       const wordCount = plainText.split(/\s+/).filter(Boolean).length;
-      if (wordCount > 80) {
-        toast.warn("⚠️ Only 80 words allowed in the first content box");
-      }
+      if (wordCount > 80) toast.warn("⚠️ Only 80 words allowed in the first content box");
     }
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleTopicToggle = (topic) => {
-    setFormData(prev => {
+    setFormData((prev) => {
       const isSelected = prev.topics.includes(topic);
       if (!isSelected && prev.topics.length >= 5) {
         toast.warn("⚠️ Max 5 topics allowed");
@@ -150,12 +166,12 @@ const AddNews = () => {
       }
       return {
         ...prev,
-        topics: isSelected ? prev.topics.filter(t => t !== topic) : [...prev.topics, topic],
+        topics: isSelected ? prev.topics.filter((t) => t !== topic) : [...prev.topics, topic],
       };
     });
   };
 
-  const handleFileChange = (e) => setFormData(prev => ({ ...prev, images: e.target.files[0] }));
+  const handleFileChange = (e) => setFormData((prev) => ({ ...prev, images: e.target.files[0] }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -172,7 +188,9 @@ const AddNews = () => {
     });
 
     try {
-      await sendRequest("/superAdmin/news", "POST", newsData, { headers: { "Content-Type": "multipart/form-data" } });
+      await sendRequest("/superAdmin/news", "POST", newsData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
       toast.success("✅ News added successfully!");
       setFormData({
         heading: "",
@@ -194,11 +212,16 @@ const AddNews = () => {
     <div className="p-8 min-h-screen bg-[#121212] text-gray-100">
       <h1 className="text-3xl font-bold mb-8 text-[#1f4edb]">📰 Add News</h1>
 
-      <form onSubmit={handleSubmit} className="space-y-6 bg-[#1E1E1E] p-8 rounded-2xl shadow-lg border border-gray-800">
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-6 bg-[#1E1E1E] p-8 rounded-2xl shadow-lg border border-gray-800"
+      >
         {/* Heading & Subheading */}
         {["heading", "subHeading"].map((field, i) => (
           <div key={i}>
-            <label className="block text-sm font-semibold mb-2 text-gray-300">{field === "heading" ? "Heading" : "Sub Heading"}</label>
+            <label className="block text-sm font-semibold mb-2 text-gray-300">
+              {field === "heading" ? "Heading" : "Sub Heading"}
+            </label>
             <RichTextEditor
               value={formData[field]}
               onChange={(value) => handleRichTextChange(field, value)}
@@ -214,7 +237,9 @@ const AddNews = () => {
           const wordCount = plainText.split(/\s+/).filter(Boolean).length;
           return (
             <div key={i}>
-              <label className="block text-sm font-semibold mb-2 text-gray-300 capitalize">{field.replace("Content", " Content")}</label>
+              <label className="block text-sm font-semibold mb-2 text-gray-300 capitalize">
+                {field.replace("Content", " Content")}
+              </label>
               <RichTextEditor
                 value={formData[field]}
                 onChange={(value) => handleRichTextChange(field, value)}
@@ -222,33 +247,144 @@ const AddNews = () => {
                 minHeight={field === "largeContent" ? "250px" : "150px"}
               />
               {field === "smallContent" && (
-                <p className={`text-sm mt-1 ${wordCount > 80 ? "text-red-500" : "text-gray-400"}`}>{wordCount}/80 words</p>
+                <p
+                  className={`text-sm mt-1 ${wordCount > 80 ? "text-red-500" : "text-gray-400"
+                    }`}
+                >
+                  {wordCount}/80 words
+                </p>
               )}
             </div>
           );
         })}
 
-        {/* Content Type, Topics, ContentFor, Date, Image */}
-        {/* ... (keep your existing JSX for these inputs) */}
+        {/* Content Type */}
+        <div>
+          <label className="block text-sm font-semibold mb-2 text-gray-300">
+            Content Type
+          </label>
+          <select
+            name="contentType"
+            value={formData.contentType}
+            onChange={handleChange}
+            className="w-full p-3 rounded-lg bg-[#2B2B2B] border border-gray-700 text-gray-200 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          >
+            <option value="Current Affair">Current Affair</option>
+            <option value="Sports">Sports</option>
+            <option value="Technology">Technology</option>
+            <option value="Entertainment">Entertainment</option>
+          </select>
+        </div>
+
+        {/* Topics */}
+        <div>
+          <label className="block text-sm font-semibold mb-2 text-gray-300">Topics</label>
+          <div className="flex flex-wrap gap-2">
+            {topics.map((topic) => (
+              <button
+                key={topic}
+                type="button"
+                onClick={() => handleTopicToggle(topic)}
+                className={`px-4 py-2 rounded-full border ${formData.topics.includes(topic)
+                    ? "bg-blue-700 border-blue-500 text-white"
+                    : "bg-[#2B2B2B] border-gray-600 text-gray-300 hover:bg-[#3B3B3B]"
+                  } transition`}
+              >
+                {topic}
+              </button>
+            ))}
+          </div>
+          <p className="text-sm text-gray-400 mt-1">Max 5 topics allowed</p>
+        </div>
+
+        {/* Content For */}
+        <div>
+          <label className="block text-sm font-medium text-gray-200">
+            Content For
+          </label>
+          <select
+            name="contentFor"
+            value={formData.contentFor}
+            onChange={handleChange}
+            className="w-full p-2 border border-gray-600 rounded bg-gray-800 text-white"
+            required
+          >
+            <option value="">Select...</option>
+            <option value="For School">For School</option>
+            <option value="For Others">For Others</option>
+          </select>
+
+        </div>
+
+        {/* Date */}
+        <div>
+          <label className="block text-sm font-semibold mb-2 text-gray-300">Date</label>
+          <input
+            type="date"
+            name="date"
+            value={formData.date}
+            onChange={handleChange}
+            className="w-full p-3 rounded-lg bg-[#2B2B2B] border border-gray-700 text-gray-200 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          />
+        </div>
+
+        {/* Image Upload */}
+        <div>
+          <label className="block text-sm font-semibold mb-2 text-gray-300">
+            Upload Image
+          </label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
+            className="w-full p-3 rounded-lg bg-[#2B2B2B] border border-gray-700 text-gray-200 focus:outline-none"
+          />
+          {formData.images && (
+            <div className="mt-3">
+              <p className="text-gray-400 mb-1 text-sm">Preview:</p>
+              <img
+                src={URL.createObjectURL(formData.images)}
+                alt="Preview"
+                className="w-48 h-32 object-cover rounded-lg border border-gray-700"
+              />
+            </div>
+          )}
+        </div>
 
         {/* Preview Button */}
-        <button type="button" onClick={() => setShowPreview(true)} className="w-full py-3 rounded-lg bg-[#1E2D5B] hover:bg-[#253b7a] text-white font-semibold transition">
+        <button
+          type="button"
+          onClick={() => setShowPreview(true)}
+          className="w-full py-3 rounded-lg bg-[#1E2D5B] hover:bg-[#253b7a] text-white font-semibold transition"
+        >
           👁️ Preview News
         </button>
 
         {/* Submit */}
-        <button type="submit" disabled={loading} className="w-full py-3 rounded-lg bg-green-700 hover:bg-green-800 text-white font-semibold transition disabled:opacity-50">
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full py-3 rounded-lg bg-green-700 hover:bg-green-800 text-white font-semibold transition disabled:opacity-50"
+        >
           {loading ? "Saving..." : "💾 Add News"}
         </button>
 
         {/* Navigate to All News Page */}
-        <button type="button" onClick={() => navigate("/admin/all-news")} className="w-full sm:w-1/2 py-3 rounded-lg bg-[#3B3B3B] hover:bg-[#4A4A4A] text-gray-200 font-semibold transition">
+        <button
+          type="button"
+          onClick={() => navigate("/admin/all-news")}
+          className="w-full sm:w-1/2 py-3 rounded-lg bg-[#3B3B3B] hover:bg-[#4A4A4A] text-gray-200 font-semibold transition"
+        >
           📜 View All News
         </button>
       </form>
 
       {/* Preview Modal */}
-      <PreviewNews open={showPreview} onClose={() => setShowPreview(false)} formData={formData} />
+      <PreviewNews
+        open={showPreview}
+        onClose={() => setShowPreview(false)}
+        formData={formData}
+      />
     </div>
   );
 };
