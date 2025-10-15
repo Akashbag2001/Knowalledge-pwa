@@ -25,6 +25,8 @@ import ErrorBoundary from "./ErrorBoundary";
 import Profile from "./pages/users/Profile";
 import News from "./pages/users/News";
 
+import SuperAdminNewsPage from "./pages/superadmin/SuperAdminNewsPage";
+
 function AnimatedRoutes() {
   const location = useLocation();
 
@@ -87,6 +89,14 @@ function AnimatedRoutes() {
               element={
                 <ProtectedRoute role="superadmin">
                   <AddSchool />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="admin/all-news"
+              element={
+                <ProtectedRoute role="superadmin">
+                  <SuperAdminNewsPage />
                 </ProtectedRoute>
               }
             />
