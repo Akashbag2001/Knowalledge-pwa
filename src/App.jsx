@@ -26,6 +26,7 @@ import Profile from "./pages/users/Profile";
 import News from "./pages/users/News";
 
 import SuperAdminNewsPage from "./pages/superadmin/SuperAdminNewsPage";
+import AddNewTriviaPage from "./pages/superadmin/AddNewTriviaPage";
 
 function AnimatedRoutes() {
   const location = useLocation();
@@ -80,6 +81,16 @@ function AnimatedRoutes() {
               element={
                 <ProtectedRoute role="superadmin">
                   <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
+             <Route
+              path="admin/add-trivia"
+              element={
+                <ProtectedRoute role="superadmin">
+                  <ErrorBoundary>
+                    <AddNewTriviaPage />
+                  </ErrorBoundary>
                 </ProtectedRoute>
               }
             />

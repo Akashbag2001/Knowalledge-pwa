@@ -10,11 +10,12 @@ const PreviewNews = ({ open, onClose, formData }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editableData, setEditableData] = useState({});
 
-  // ✅ Handle image preview
+  // Initialize editable data and image preview
   useEffect(() => {
     if (!open || !formData) return;
 
     let url = null;
+
     if (formData.images instanceof File) {
       url = URL.createObjectURL(formData.images);
       setImagePreview(url);
@@ -26,7 +27,7 @@ const PreviewNews = ({ open, onClose, formData }) => {
       setImagePreview(null);
     }
 
-    setEditableData(formData); // Initialize editable data
+    setEditableData(formData);
 
     return () => {
       if (url) URL.revokeObjectURL(url);
@@ -35,29 +36,86 @@ const PreviewNews = ({ open, onClose, formData }) => {
 
   if (!open) return null;
 
-  // ✅ Handle input changes
+  // Handle field changes
   const handleChange = (field, value) => {
     setEditableData((prev) => ({ ...prev, [field]: value }));
   };
 
-  // ✅ Handle update API call
-  const handleSave = async () => {
-    try {
-      const response = await sendRequest(
-        `/superAdmin/news/${formData._id}`,
-        "PUT",
-        editableData
-      );
-      if (response.success) {
-        toast.success("News updated successfully!");
-        setIsEditing(false);
-      } else {
-        toast.error("Failed to update news");
-      }
-    } catch (err) {
-      toast.error("Error updating news");
-    }
+  // Handle image upload
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setEditableData((prev) => ({ ...prev, images: file }));
+    const url = URL.createObjectURL(file);
+    setImagePreview(url);
   };
+
+  // Update news API call
+  // Updated handleSave function with proper FormData handling
+const handleSave = async () => {
+  try {
+    const formDataPayload = new FormData();
+
+    // Handle all fields
+    Object.entries(editableData).forEach(([key, value]) => {
+      if (key === "images") {
+        // If it's a new File object (user uploaded new image)
+        if (value instanceof File) {
+          formDataPayload.append("images", value);
+        }
+        // If it's an existing image URL/string, skip it (don't send)
+        // The backend will keep the existing image
+      } else if (key === "topics") {
+        // Handle topics array - send as JSON string or individual items
+        if (Array.isArray(value)) {
+          formDataPayload.append("topics", JSON.stringify(value));
+        }
+      } else if (key === "_id") {
+        // Skip _id as it's in the URL
+        return;
+      } else {
+        // All other fields as text
+        formDataPayload.append(key, value || "");
+      }
+    });
+
+    // If no new image was uploaded, you might want to keep the old one
+    // by sending the removeImages URL or handling it differently
+    if (editableData.removeImages && !(editableData.images instanceof File)) {
+      formDataPayload.append("removeImages", editableData.removeImages);
+    }
+
+    const response = await sendRequest(
+      `/superAdmin/news/${formData._id}`,
+      "PUT",
+      formDataPayload,
+      true // indicate multipart/form-data
+    );
+
+    if (response.success) {
+      toast.success("News updated successfully!");
+      setIsEditing(false);
+      // Update local preview immediately
+      if (response.data) {
+        setEditableData(response.data);
+        // Update image preview if new image URL is returned
+        if (response.data.images) {
+          if (Array.isArray(response.data.images) && response.data.images.length > 0) {
+            setImagePreview(response.data.images[0]);
+          } else if (typeof response.data.images === "string") {
+            setImagePreview(response.data.images);
+          }
+        }
+      }
+    } else {
+      toast.error(response.message || "Failed to update news");
+    }
+  } catch (err) {
+    console.error("Error updating news:", err);
+    toast.error(err.message || "Error updating news");
+  }
+};
 
   return (
     <AnimatePresence>
@@ -99,14 +157,32 @@ const PreviewNews = ({ open, onClose, formData }) => {
           {/* Body */}
           <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 overflow-y-auto max-h-[70vh] sm:max-h-[75vh]">
             {/* Image */}
-            {imagePreview && (
-              <div className="w-full mb-4 sm:mb-6 flex justify-center">
-                <img
-                  src={imagePreview}
-                  alt="Featured"
-                  className="w-full max-w-full sm:max-w-[600px] h-auto object-contain rounded-lg border border-gray-700"
+            {isEditing ? (
+              <div className="w-full mb-4 sm:mb-6 flex flex-col items-center">
+                {imagePreview && (
+                  <img
+                    src={imagePreview}
+                    alt="Featured"
+                    className="w-full max-w-full sm:max-w-[600px] h-auto object-contain rounded-lg border border-gray-700 mb-2"
+                  />
+                )}
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="text-sm text-gray-300"
                 />
               </div>
+            ) : (
+              imagePreview && (
+                <div className="w-full mb-4 sm:mb-6 flex justify-center">
+                  <img
+                    src={imagePreview}
+                    alt="Featured"
+                    className="w-full max-w-full sm:max-w-[600px] h-auto object-contain rounded-lg border border-gray-700"
+                  />
+                </div>
+              )
             )}
 
             {/* Heading */}

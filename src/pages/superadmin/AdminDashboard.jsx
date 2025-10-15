@@ -27,7 +27,7 @@ const options = [
     title: "Add Trivia Post",
     icon: <PenSquare className="w-8 h-8" />,
     color: "from-purple-500 to-purple-700",
-    path: "/add-trivia", // optional placeholder route
+    path: "/admin/add-trivia", // optional placeholder route
   },
   {
     title: "Add Event/Quiz",
