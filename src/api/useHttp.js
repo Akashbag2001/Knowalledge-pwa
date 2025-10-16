@@ -1,7 +1,8 @@
 import { useState } from "react";
 
-const BASE_URL = "http://localhost:8080/api/v1";
-const hosted_URL ="http://knowalledgebackendnew-env.eba-f2pvuxsc.ap-south-1.elasticbeanstalk.com/api/v1";
+// const BASE_URL = "http://localhost:8080/api/v1";
+const BASE_URL ="http://192.168.1.214:8080/api/v1";
+// const hosted_URL ="http://knowalledgebackendnew-env.eba-f2pvuxsc.ap-south-1.elasticbeanstalk.com/api/v1";
 
 export default function useHttp() {
   const [loading, setLoading] = useState(false);
