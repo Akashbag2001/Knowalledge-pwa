@@ -1,5 +1,5 @@
 // src/pages/user/News.jsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-toastify";
 import useHttp from "../../api/useHttp";
@@ -8,33 +8,72 @@ const News = () => {
   const { sendRequest, loading } = useHttp();
   const [newsList, setNewsList] = useState([]);
   const [expandedNews, setExpandedNews] = useState(null);
+  const [cursor, setCursor] = useState(null);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
 
   const getImageSrc = (images) => {
     if (!images || images.length === 0) return null;
     return typeof images[0] === "string" ? images[0] : images[0].url;
   };
 
-  useEffect(() => {
-    const fetchNews = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        const response = await sendRequest("/user/feed", "GET", null, {
-          Authorization: `Bearer ${token}`,
-        });
+  const fetchNews = useCallback(async (cursorParam = null) => {
+    try {
+      const token = localStorage.getItem("token");
+      const queryParams = cursorParam ? { cursor: cursorParam } : {};
+      const response = await sendRequest("/user/feed", "GET", null, {
+        Authorization: `Bearer ${token}`,
+      }, queryParams);
 
-        if (response.success) {
-          const newsOnly = response.feed.filter(item => !item.type);
-          setNewsList(newsOnly);
+      if (response.success) {
+        const newsOnly = response.feed.filter(item => !item.type);
+
+        if (cursorParam) {
+          // Append but remove duplicates
+          setNewsList(prev => {
+            const ids = new Set(prev.map(item => item._id));
+            const filtered = newsOnly.filter(item => !ids.has(item._id));
+            return [...prev, ...filtered];
+          });
         } else {
-          toast.error(response.message || "Failed to fetch news");
+          setNewsList(newsOnly);
         }
-      } catch (error) {
-        toast.error("Error fetching news");
+
+        setCursor(response.nextCursor || null);
+        setHasMore(response.nextCursor ? true : false);
+      } else {
+        toast.error(response.message || "Failed to fetch news");
+      }
+    } catch (error) {
+      toast.error("Error fetching news");
+    } finally {
+      setLoadingMore(false);
+    }
+  }, []);
+
+
+  // Initial fetch
+  useEffect(() => {
+    fetchNews();
+  }, [fetchNews]);
+
+  // Infinite scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      if (
+        window.innerHeight + document.documentElement.scrollTop + 50 >=
+        document.documentElement.scrollHeight &&
+        !loadingMore &&
+        hasMore
+      ) {
+        setLoadingMore(true);
+        fetchNews(cursor);
       }
     };
 
-    fetchNews();
-  }, []);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [cursor, loadingMore, hasMore, fetchNews]);
 
   return (
     <div className="w-full min-h-screen bg-[#121212] text-white px-4 sm:px-10 py-10">
@@ -43,7 +82,7 @@ const News = () => {
       </h1>
 
       <div className="flex flex-col gap-6">
-        {loading ? (
+        {(loading && newsList.length === 0) ? (
           <p className="text-center text-gray-400 py-10 animate-pulse">
             Fetching news...
           </p>
@@ -77,7 +116,6 @@ const News = () => {
                   />
                   <p className="text-gray-400 text-sm mb-2">{news.subHeading}</p>
 
-                  {/* Full smallContent */}
                   <p
                     className="text-gray-400 text-sm"
                     dangerouslySetInnerHTML={{ __html: news.smallContent }}
@@ -122,6 +160,11 @@ const News = () => {
               </motion.div>
             );
           })
+        )}
+        {loadingMore && (
+          <p className="text-center text-gray-400 py-5 animate-pulse">
+            Loading more news...
+          </p>
         )}
       </div>
     </div>
