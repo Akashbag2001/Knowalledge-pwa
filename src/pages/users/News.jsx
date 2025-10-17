@@ -23,7 +23,6 @@ const News = () => {
         });
 
         if (response.success) {
-          // Filter only news items (exclude trivia)
           const newsOnly = response.feed.filter(item => !item.type);
           setNewsList(newsOnly);
         } else {
@@ -63,7 +62,6 @@ const News = () => {
                 className="cursor-pointer border border-gray-700 rounded-xl bg-[#2B2B2B]/60 hover:bg-[#2B2B2B] transition duration-200 overflow-hidden"
                 onClick={() => setExpandedNews(isExpanded ? null : news)}
               >
-                {/* News Image */}
                 {imageSrc && (
                   <img
                     src={imageSrc}
@@ -73,20 +71,18 @@ const News = () => {
                 )}
 
                 <div className="p-5">
-                  {/* Heading & Subheading */}
                   <h3
                     className="text-xl font-semibold text-[#1f4edb] mb-1"
                     dangerouslySetInnerHTML={{ __html: news.heading }}
                   />
                   <p className="text-gray-400 text-sm mb-2">{news.subHeading}</p>
 
-                  {/* Small Content */}
+                  {/* Full smallContent */}
                   <p
-                    className="text-gray-400 text-sm line-clamp-3"
+                    className="text-gray-400 text-sm"
                     dangerouslySetInnerHTML={{ __html: news.smallContent }}
                   />
 
-                  {/* Topics and Metadata */}
                   <div className="mt-3 text-xs text-gray-500 flex flex-wrap gap-3">
                     <span>📅 {news.date}</span>
                     <span>🏷 {news.contentType}</span>
@@ -95,7 +91,6 @@ const News = () => {
                     )}
                   </div>
 
-                  {/* Expand/Collapse Button */}
                   <div className="mt-4 flex justify-end">
                     <button
                       className="text-sm text-blue-400 hover:text-blue-300 transition"
@@ -108,7 +103,6 @@ const News = () => {
                     </button>
                   </div>
 
-                  {/* Expanded Content */}
                   <AnimatePresence>
                     {isExpanded && (
                       <motion.div
