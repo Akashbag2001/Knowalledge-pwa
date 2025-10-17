@@ -86,7 +86,7 @@ const EditTriviaPopup = ({ open, onClose, triviaData }) => {
 
             toast.success("Trivia updated successfully!");
             //   onUpdate(); // refresh parent list
-
+            onrefresh();
             // Delay popup close slightly for smooth UX
             setTimeout(() => {
                 onClose();

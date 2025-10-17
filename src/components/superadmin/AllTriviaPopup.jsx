@@ -1,9 +1,32 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import EditTriviaPopup from "./EditTriviaPopup";
+import useHttp from "../../api/useHttp";
+import { toast } from "react-toastify";
 
 const AllTriviaPopup = ({ open, onClose, trivias, onRefresh }) => {
+  const { sendRequest, loading } = useHttp();
   const [selectedTrivia, setSelectedTrivia] = useState(null);
+
+  useEffect(() => {
+    onRefresh();
+  }, [])
+
+  const handleDeleteTrivia = async (triviaId) => {
+    if (!window.confirm("Are you sure you want to delete this trivia?")) return;
+
+    try {
+      const response = await sendRequest(`/superAdmin/trivia/${triviaId}`, "DELETE");
+      if (response.success) {
+        toast.success("Trivia deleted successfully!");
+        onRefresh(); // Refresh the list in parent
+      } else {
+        toast.error(response.message || "Failed to delete trivia");
+      }
+    } catch (err) {
+      toast.error("Error deleting trivia");
+    }
+  };
 
   return (
     <>
@@ -41,12 +64,19 @@ const AllTriviaPopup = ({ open, onClose, trivias, onRefresh }) => {
                   {trivias.map((trivia, tIndex) => (
                     <div
                       key={tIndex}
-                      onClick={() => setSelectedTrivia(trivia)}
                       className="cursor-pointer bg-neutral-800 rounded-xl p-5 border border-neutral-700 shadow-lg hover:shadow-blue-500/40 transition-shadow"
                     >
-                      <h3 className="text-2xl font-semibold text-blue-300 mb-4">
-                        {trivia.triviaName}
-                      </h3>
+                      <div className="flex justify-between items-center mb-4">
+                        <h3 className="text-2xl font-semibold text-blue-300">
+                          {trivia.triviaName}
+                        </h3>
+                        <button
+                          onClick={() => handleDeleteTrivia(trivia._id || trivia.id)}
+                          className="px-3 py-1 bg-red-600 hover:bg-red-700 rounded text-sm font-semibold text-white transition"
+                        >
+                          Delete
+                        </button>
+                      </div>
 
                       {/* SubCards */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
@@ -106,7 +136,7 @@ const AllTriviaPopup = ({ open, onClose, trivias, onRefresh }) => {
           open={!!selectedTrivia}
           onClose={() => setSelectedTrivia(null)}
           triviaData={selectedTrivia}
-          // Callback to refresh trivia list after edit
+          onRefresh={onRefresh} // Pass refresh callback if you have
         />
       )}
     </>

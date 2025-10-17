@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
 import useHttp from "../../api/useHttp";
@@ -42,6 +42,14 @@ const AddNewTriviaPage = () => {
     };
     fetchTrivias();
   }, []);
+  const refreshTrivias = useCallback(async () => {
+  try {
+    const response = await sendRequest("/superAdmin/trivia", "GET");
+    if (response.success) setAllTrivias(response.data || []);
+  } catch (err) {
+    toast.error("Error refreshing trivias");
+  }
+}, [sendRequest])
 
   // Handle text input changes
   const handleChange = (e) => {
@@ -428,6 +436,7 @@ const AddNewTriviaPage = () => {
             open={showAllTrivias}
             onClose={() => setShowAllTrivias(false)}
             trivias={allTrivias}
+            onRefresh={refreshTrivias}
           />
         )}
       </motion.div>
