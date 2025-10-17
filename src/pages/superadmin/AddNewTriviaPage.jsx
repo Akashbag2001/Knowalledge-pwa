@@ -196,7 +196,7 @@ const AddNewTriviaPage = () => {
             onClick={() => setShowAllTrivias(true)}
             className="mt-3 sm:mt-0 px-4 py-2 bg-neutral-800 hover:bg-neutral-700 text-white rounded-lg font-semibold border border-neutral-700 transition"
           >
-            👀 View All Trivias
+            View All Trivias
           </button>
         </div>
         <p className="text-neutral-400 mb-6 sm:mb-8">
