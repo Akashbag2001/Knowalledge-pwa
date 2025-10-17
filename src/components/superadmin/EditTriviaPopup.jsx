@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-toastify";
 import useHttp from "../../api/useHttp";
 
-const EditTriviaPopup = ({ open, onClose, triviaData }) => {
+const EditTriviaPopup = ({ open, onClose, triviaData, onRefresh }) => {
     const { sendRequest, loading } = useHttp();
     const triviaId = triviaData?._id || triviaData?.id;
 
@@ -12,36 +12,54 @@ const EditTriviaPopup = ({ open, onClose, triviaData }) => {
         subCards: [],
     });
 
+    // Initialize form data when triviaData changes
     useEffect(() => {
         if (triviaData) {
             setFormData({
                 triviaName: triviaData.triviaName || "",
-                subCards: triviaData.subCards || [],
+                subCards:
+                    triviaData.subCards?.map((card) => ({
+                        ...card,
+                        imageFile: null, // for device upload
+                    })) || [],
             });
         }
     }, [triviaData]);
 
+    // Handle main trivia name change
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
+    // Handle subCard text field changes
     const handleSubCardChange = (index, field, value) => {
         const updatedSubCards = [...formData.subCards];
         updatedSubCards[index][field] = value;
         setFormData((prev) => ({ ...prev, subCards: updatedSubCards }));
     };
 
+    // Handle subCard image selection from device
+    const handleSubCardImageUpload = (index, file) => {
+        if (!file) return;
+        const updatedSubCards = [...formData.subCards];
+        updatedSubCards[index].imageFile = file;
+        updatedSubCards[index].image = URL.createObjectURL(file); // preview
+        setFormData((prev) => ({ ...prev, subCards: updatedSubCards }));
+    };
+
+    // Add new subCard
     const addSubCard = () => {
         setFormData((prev) => ({
             ...prev,
             subCards: [
                 ...prev.subCards,
-                { heading: "", subHeading: "", content: "", image: "" },
+                { heading: "", subHeading: "", content: "", image: "", imageFile: null },
             ],
         }));
     };
 
+    // Remove subCard
     const removeSubCard = (index) => {
         if (formData.subCards.length === 1) {
             toast.warning("At least one subCard is required");
@@ -51,6 +69,7 @@ const EditTriviaPopup = ({ open, onClose, triviaData }) => {
         setFormData((prev) => ({ ...prev, subCards: updatedSubCards }));
     };
 
+    // Handle submit
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -69,10 +88,23 @@ const EditTriviaPopup = ({ open, onClose, triviaData }) => {
         }
 
         try {
-            const payload = new FormData();
-            payload.append("triviaName", formData.triviaName.trim());
-            payload.append("subCards", JSON.stringify(formData.subCards));
+            // Prepare payload: only text + image URL
+            const subCardsPayload = formData.subCards.map(
+                ({ heading, subHeading, content, image, _id }) => ({
+                    heading,
+                    subHeading,
+                    content,
+                    image, // URL string only
+                    _id,
+                })
+            );
 
+            const payload = {
+                triviaName: formData.triviaName.trim(),
+                subCards: subCardsPayload,
+            };
+
+            // Send JSON payload
             const response = await sendRequest(
                 `/superAdmin/trivia/${triviaId}`,
                 "PUT",
@@ -85,12 +117,10 @@ const EditTriviaPopup = ({ open, onClose, triviaData }) => {
             }
 
             toast.success("Trivia updated successfully!");
-            //   onUpdate(); // refresh parent list
-            onrefresh();
-            // Delay popup close slightly for smooth UX
+            onRefresh?.();
             setTimeout(() => {
                 onClose();
-            }, 1000);
+            }, 500);
         } catch (err) {
             console.error(err);
             toast.error("Error updating trivia");
@@ -104,7 +134,7 @@ const EditTriviaPopup = ({ open, onClose, triviaData }) => {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+                    className="fixed inset-0 z-50 mt-16 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
                 >
                     <motion.div
                         initial={{ scale: 0.9, opacity: 0 }}
@@ -125,6 +155,7 @@ const EditTriviaPopup = ({ open, onClose, triviaData }) => {
                         </h2>
 
                         <form onSubmit={handleSubmit} className="space-y-4">
+                            {/* Trivia Name */}
                             <div>
                                 <label className="text-sm font-semibold text-neutral-300 mb-1 block">
                                     Trivia Name
@@ -138,6 +169,7 @@ const EditTriviaPopup = ({ open, onClose, triviaData }) => {
                                 />
                             </div>
 
+                            {/* SubCards */}
                             {formData.subCards.map((card, index) => (
                                 <div
                                     key={index}
@@ -187,6 +219,7 @@ const EditTriviaPopup = ({ open, onClose, triviaData }) => {
                                         className="w-full px-2 py-1 bg-neutral-900 border border-neutral-600 rounded text-white focus:outline-none focus:border-blue-500 transition resize-none"
                                     />
 
+                                    {/* Image */}
                                     <div className="flex items-center gap-3 mt-1">
                                         {card.image && (
                                             <img
@@ -195,16 +228,35 @@ const EditTriviaPopup = ({ open, onClose, triviaData }) => {
                                                 className="w-20 h-20 object-cover rounded-lg border border-neutral-600"
                                             />
                                         )}
-                                        <input
-                                            type="url"
-                                            placeholder="Image URL"
-                                            value={card.image || ""}
-                                            onChange={(e) =>
-                                                handleSubCardChange(index, "image", e.target.value)
-                                            }
-                                            className="flex-1 px-2 py-1 bg-neutral-900 border border-neutral-600 rounded text-white placeholder-neutral-500 focus:outline-none focus:border-blue-500 transition"
-                                        />
+
+                                        {/* Edit Icon Trigger */}
+                                        <div className="flex items-center justify-center w-10 h-10 bg-neutral-700 rounded-lg cursor-pointer hover:bg-blue-600 transition">
+                                            <label className="w-full h-full flex items-center justify-center cursor-pointer">
+                                                <svg
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    className="h-5 w-5 text-white"
+                                                    fill="none"
+                                                    viewBox="0 0 24 24"
+                                                    stroke="currentColor"
+                                                >
+                                                    <path
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                        strokeWidth={2}
+                                                        d="M15.232 5.232l3.536 3.536M16 3.5a2.121 2.121 0 113 3L7 18H4v-3L16 3.5z"
+                                                    />
+                                                </svg>
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    onChange={(e) => handleSubCardImageUpload(index, e.target.files[0])}
+                                                    className="hidden"
+                                                />
+                                            </label>
+                                        </div>
                                     </div>
+
+
                                 </div>
                             ))}
 

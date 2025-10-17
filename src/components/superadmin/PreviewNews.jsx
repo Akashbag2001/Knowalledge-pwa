@@ -53,69 +53,69 @@ const PreviewNews = ({ open, onClose, formData }) => {
 
   // Update news API call
   // Updated handleSave function with proper FormData handling
-const handleSave = async () => {
-  try {
-    const formDataPayload = new FormData();
+  const handleSave = async () => {
+    try {
+      const formDataPayload = new FormData();
 
-    // Handle all fields
-    Object.entries(editableData).forEach(([key, value]) => {
-      if (key === "images") {
-        // If it's a new File object (user uploaded new image)
-        if (value instanceof File) {
-          formDataPayload.append("images", value);
+      // Handle all fields
+      Object.entries(editableData).forEach(([key, value]) => {
+        if (key === "images") {
+          // If it's a new File object (user uploaded new image)
+          if (value instanceof File) {
+            formDataPayload.append("images", value);
+          }
+          // If it's an existing image URL/string, skip it (don't send)
+          // The backend will keep the existing image
+        } else if (key === "topics") {
+          // Handle topics array - send as JSON string or individual items
+          if (Array.isArray(value)) {
+            formDataPayload.append("topics", JSON.stringify(value));
+          }
+        } else if (key === "_id") {
+          // Skip _id as it's in the URL
+          return;
+        } else {
+          // All other fields as text
+          formDataPayload.append(key, value || "");
         }
-        // If it's an existing image URL/string, skip it (don't send)
-        // The backend will keep the existing image
-      } else if (key === "topics") {
-        // Handle topics array - send as JSON string or individual items
-        if (Array.isArray(value)) {
-          formDataPayload.append("topics", JSON.stringify(value));
-        }
-      } else if (key === "_id") {
-        // Skip _id as it's in the URL
-        return;
-      } else {
-        // All other fields as text
-        formDataPayload.append(key, value || "");
+      });
+
+      // If no new image was uploaded, you might want to keep the old one
+      // by sending the removeImages URL or handling it differently
+      if (editableData.removeImages && !(editableData.images instanceof File)) {
+        formDataPayload.append("removeImages", editableData.removeImages);
       }
-    });
 
-    // If no new image was uploaded, you might want to keep the old one
-    // by sending the removeImages URL or handling it differently
-    if (editableData.removeImages && !(editableData.images instanceof File)) {
-      formDataPayload.append("removeImages", editableData.removeImages);
-    }
+      const response = await sendRequest(
+        `/superAdmin/news/${formData._id}`,
+        "PUT",
+        formDataPayload,
+        true // indicate multipart/form-data
+      );
 
-    const response = await sendRequest(
-      `/superAdmin/news/${formData._id}`,
-      "PUT",
-      formDataPayload,
-      true // indicate multipart/form-data
-    );
-
-    if (response.success) {
-      toast.success("News updated successfully!");
-      setIsEditing(false);
-      // Update local preview immediately
-      if (response.data) {
-        setEditableData(response.data);
-        // Update image preview if new image URL is returned
-        if (response.data.images) {
-          if (Array.isArray(response.data.images) && response.data.images.length > 0) {
-            setImagePreview(response.data.images[0]);
-          } else if (typeof response.data.images === "string") {
-            setImagePreview(response.data.images);
+      if (response.success) {
+        toast.success("News updated successfully!");
+        setIsEditing(false);
+        // Update local preview immediately
+        if (response.data) {
+          setEditableData(response.data);
+          // Update image preview if new image URL is returned
+          if (response.data.images) {
+            if (Array.isArray(response.data.images) && response.data.images.length > 0) {
+              setImagePreview(response.data.images[0]);
+            } else if (typeof response.data.images === "string") {
+              setImagePreview(response.data.images);
+            }
           }
         }
+      } else {
+        toast.error(response.message || "Failed to update news");
       }
-    } else {
-      toast.error(response.message || "Failed to update news");
+    } catch (err) {
+      console.error("Error updating news:", err);
+      toast.error(err.message || "Error updating news");
     }
-  } catch (err) {
-    console.error("Error updating news:", err);
-    toast.error(err.message || "Error updating news");
-  }
-};
+  };
 
   return (
     <AnimatePresence>
@@ -156,65 +156,67 @@ const handleSave = async () => {
 
           {/* Body */}
           <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 overflow-y-auto max-h-[70vh] sm:max-h-[75vh]">
-            {/* Image */}
-            {isEditing ? (
-              <div className="w-full mb-4 sm:mb-6 flex flex-col items-center">
-                {imagePreview && (
-                  <img
-                    src={imagePreview}
-                    alt="Featured"
-                    className="w-full max-w-full sm:max-w-[600px] h-auto object-contain rounded-lg border border-gray-700 mb-2"
+
+            {/* Heading & Subheading at the Top */}
+            <div className="mb-4 sm:mb-6">
+              {isEditing ? (
+                <>
+                  <input
+                    type="text"
+                    value={editableData.heading || ""}
+                    onChange={(e) => handleChange("heading", e.target.value)}
+                    className="w-full p-2 sm:p-3 rounded bg-[#2B2B2B] border border-gray-700 text-white text-lg sm:text-2xl font-bold mb-2"
+                    placeholder="Heading"
                   />
-                )}
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="text-sm text-gray-300"
-                />
-              </div>
-            ) : (
-              imagePreview && (
-                <div className="w-full mb-4 sm:mb-6 flex justify-center">
+                  <input
+                    type="text"
+                    value={editableData.subHeading || ""}
+                    onChange={(e) => handleChange("subHeading", e.target.value)}
+                    className="w-full p-2 sm:p-3 rounded bg-[#2B2B2B] border border-gray-700 text-gray-300 text-lg sm:text-2xl italic"
+                    placeholder="Subheading"
+                  />
+                </>
+              ) : (
+                <>
+                  {editableData.heading && (
+                    <h1 className="text-2xl sm:text-4xl font-extrabold text-white mb-2 sm:mb-3 break-words">
+                      <div dangerouslySetInnerHTML={{ __html: editableData.heading }} />
+                    </h1>
+                  )}
+                  {editableData.subHeading && (
+                    <h2 className="text-lg sm:text-2xl italic font-semibold text-gray-300 mb-4 sm:mb-6 break-words">
+                      <div dangerouslySetInnerHTML={{ __html: editableData.subHeading }} />
+                    </h2>
+                  )}
+                </>
+              )}
+            </div>
+
+            {/* Image Section */}
+            {imagePreview && (
+              <div className="w-full mb-4 sm:mb-6 flex justify-center">
+                {isEditing ? (
+                  <div className="flex flex-col items-center">
+                    <img
+                      src={imagePreview}
+                      alt="Featured"
+                      className="w-full max-w-full sm:max-w-[600px] h-auto object-contain rounded-lg border border-gray-700 mb-2"
+                    />
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="text-sm text-gray-300"
+                    />
+                  </div>
+                ) : (
                   <img
                     src={imagePreview}
                     alt="Featured"
                     className="w-full max-w-full sm:max-w-[600px] h-auto object-contain rounded-lg border border-gray-700"
                   />
-                </div>
-              )
-            )}
-
-            {/* Heading */}
-            {isEditing ? (
-              <input
-                type="text"
-                value={editableData.heading || ""}
-                onChange={(e) => handleChange("heading", e.target.value)}
-                className="w-full p-2 sm:p-3 rounded bg-[#2B2B2B] border border-gray-700 text-white text-lg sm:text-2xl font-bold"
-              />
-            ) : (
-              editableData.heading && (
-                <h1 className="text-2xl sm:text-4xl font-extrabold text-white mb-2 sm:mb-3 break-words">
-                  <div dangerouslySetInnerHTML={{ __html: editableData.heading }} />
-                </h1>
-              )
-            )}
-
-            {/* Subheading */}
-            {isEditing ? (
-              <input
-                type="text"
-                value={editableData.subHeading || ""}
-                onChange={(e) => handleChange("subHeading", e.target.value)}
-                className="w-full p-2 sm:p-3 rounded bg-[#2B2B2B] border border-gray-700 text-gray-300 text-lg sm:text-2xl italic"
-              />
-            ) : (
-              editableData.subHeading && (
-                <h2 className="text-lg sm:text-2xl italic font-semibold text-gray-300 mb-4 sm:mb-6 break-words">
-                  <div dangerouslySetInnerHTML={{ __html: editableData.subHeading }} />
-                </h2>
-              )
+                )}
+              </div>
             )}
 
             {/* Small Content */}
@@ -268,6 +270,7 @@ const handleSave = async () => {
               )}
             </div>
           </div>
+
 
           {/* Footer */}
           <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-700 bg-[#2B2B2B] text-right flex justify-end gap-2">

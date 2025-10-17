@@ -259,7 +259,7 @@ const AddNews = () => {
         })}
 
         {/* Content Type */}
-        <div>
+        {/* <div>
           <label className="block text-sm font-semibold mb-2 text-gray-300">
             Content Type
           </label>
@@ -274,7 +274,7 @@ const AddNews = () => {
             <option value="Technology">Technology</option>
             <option value="Entertainment">Entertainment</option>
           </select>
-        </div>
+        </div> */}
 
         {/* Topics */}
         <div>
@@ -282,15 +282,15 @@ const AddNews = () => {
           <div className="flex flex-wrap gap-2">
             {topics.map((topic) => (
               <button
-                key={topic}
+                key={topic.name}
                 type="button"
-                onClick={() => handleTopicToggle(topic)}
-                className={`px-4 py-2 rounded-full border ${formData.topics.includes(topic)
+                onClick={() => handleTopicToggle(topic.name)}
+                className={`px-4 py-2 rounded-full border ${formData.topics.includes(topic.name)
                     ? "bg-blue-700 border-blue-500 text-white"
                     : "bg-[#2B2B2B] border-gray-600 text-gray-300 hover:bg-[#3B3B3B]"
                   } transition`}
               >
-                {topic}
+                {topic.name}
               </button>
             ))}
           </div>
