@@ -5,9 +5,9 @@ import Layout from "./components/Layout";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { AnimatePresence, motion } from "framer-motion";
-// import "react-quill/dist/quill.snow.css";
+import ErrorBoundary from "./ErrorBoundary";
 
-// Pages
+// ✅ Pages
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -20,14 +20,15 @@ import AdminDashboard from "./pages/superadmin/AdminDashboard";
 import ViewUsers from "./pages/superadmin/ViewUsers";
 import AddSchool from "./pages/superadmin/AddSchool";
 import AddTopic from "./pages/superadmin/AddTopic";
-import AddNews from "./pages/superadmin/AddNews"; // ✅ Import AddNews
-import ErrorBoundary from "./ErrorBoundary";
-import Profile from "./pages/users/Profile";
-import News from "./pages/users/News";
-
+import AddNews from "./pages/superadmin/AddNews";
 import SuperAdminNewsPage from "./pages/superadmin/SuperAdminNewsPage";
 import AddNewTriviaPage from "./pages/superadmin/AddNewTriviaPage";
+import Profile from "./pages/users/Profile";
+import News from "./pages/users/News";
+import Discover from "./pages/users/Discover";
+import TopicDetails from "./pages/users/TopicDetails"; // ✅ New page for selected topic
 
+// ✅ Animation Wrapper for Route Transitions
 function AnimatedRoutes() {
   const location = useLocation();
 
@@ -41,8 +42,9 @@ function AnimatedRoutes() {
         transition={{ duration: 0.6, ease: "easeInOut", delay: 0.1 }}
       >
         <Routes location={location} key={location.pathname}>
-          {/* ✅ Routes with Layout */}
+          {/* ✅ Layout Routes */}
           <Route path="/" element={<Layout />}>
+            {/* Public Routes */}
             <Route index element={<Home />} />
             <Route path="login" element={<Login />} />
             <Route path="register" element={<Register />} />
@@ -50,6 +52,7 @@ function AnimatedRoutes() {
             <Route path="reset-password" element={<ResetPassword />} />
             <Route path="privacy-policy" element={<PrivacyPolicy />} />
 
+            {/* ✅ Protected User Routes */}
             <Route
               path="dashboard"
               element={
@@ -60,6 +63,7 @@ function AnimatedRoutes() {
                 </ProtectedRoute>
               }
             />
+
             <Route
               path="profile"
               element={
@@ -68,11 +72,32 @@ function AnimatedRoutes() {
                 </ProtectedRoute>
               }
             />
+
             <Route
               path="news"
               element={
                 <ProtectedRoute>
                   <News />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* ✅ Discover Routes */}
+            <Route
+              path="discover"
+              element={
+                <ProtectedRoute>
+                  <Discover />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* ✅ New Dynamic Route for Selected Topic */}
+            <Route
+              path="discover/:topicName"
+              element={
+                <ProtectedRoute>
+                  <TopicDetails />
                 </ProtectedRoute>
               }
             />
@@ -86,7 +111,8 @@ function AnimatedRoutes() {
                 </ProtectedRoute>
               }
             />
-             <Route
+
+            <Route
               path="admin/add-trivia"
               element={
                 <ProtectedRoute role="superadmin">
@@ -105,6 +131,7 @@ function AnimatedRoutes() {
                 </ProtectedRoute>
               }
             />
+
             <Route
               path="admin/all-news"
               element={
@@ -123,7 +150,6 @@ function AnimatedRoutes() {
               }
             />
 
-            {/* ✅ Add News Route */}
             <Route
               path="admin/add-news"
               element={
@@ -145,7 +171,7 @@ function AnimatedRoutes() {
             />
           </Route>
 
-          {/* ✅ Superadmin login OUTSIDE Layout */}
+          {/* ✅ Superadmin login (outside Layout) */}
           <Route path="/superadmin/login" element={<SuperAdminLogin />} />
         </Routes>
       </motion.div>
@@ -153,6 +179,7 @@ function AnimatedRoutes() {
   );
 }
 
+// ✅ Main App Wrapper
 function App() {
   return (
     <AuthProvider>
@@ -160,11 +187,7 @@ function App() {
         position="top-center"
         autoClose={3000}
         hideProgressBar={false}
-        newestOnTop={false}
         closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
         pauseOnHover
       />
       <BrowserRouter>
