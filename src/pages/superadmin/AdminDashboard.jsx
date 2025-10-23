@@ -33,7 +33,7 @@ const options = [
     title: "Add Event/Quiz",
     icon: <Calendar className="w-8 h-8" />,
     color: "from-pink-500 to-pink-700",
-    path: "/add-event", // optional placeholder route
+    path: "/admin/add-event", // optional placeholder route
   },
   {
     title: "View Quiz Result",

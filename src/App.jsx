@@ -27,6 +27,7 @@ import Profile from "./pages/users/Profile";
 import News from "./pages/users/News";
 import Discover from "./pages/users/Discover";
 import TopicDetails from "./pages/users/TopicDetails"; // ✅ New page for selected topic
+import AddEvent from "./pages/superadmin/AddEvent";
 
 // ✅ Animation Wrapper for Route Transitions
 function AnimatedRoutes() {
@@ -134,12 +135,21 @@ function AnimatedRoutes() {
 
             <Route
               path="admin/all-news"
-              element={
+              element={ 
                 <ProtectedRoute role="superadmin">
                   <SuperAdminNewsPage />
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="admin/add-event"
+              element={
+                <ProtectedRoute role="superadmin">
+                  <AddEvent />
+                </ProtectedRoute>
+              }
+            />
+
 
             <Route
               path="admin/add-topics"
