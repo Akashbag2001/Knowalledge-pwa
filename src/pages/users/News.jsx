@@ -1,4 +1,3 @@
-// src/pages/user/News.jsx
 import React, { useEffect, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-toastify";
@@ -67,12 +66,10 @@ const News = () => {
     }
   }, []);
 
-  // Initial fetch
   useEffect(() => {
     fetchFeed();
   }, [fetchFeed]);
 
-  // Infinite scroll
   useEffect(() => {
     const handleScroll = () => {
       if (
@@ -89,36 +86,14 @@ const News = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [cursor, loadingMore, hasMore, fetchFeed]);
 
-  // Trivia Section Component
-  // const TriviaSection = ({ trivia }) => (
-  //   <div className="overflow-x-auto flex gap-4 pb-2 mt-4">
-  //     {trivia.map((t) => (
-  //       <motion.div
-  //         key={t.data?._id}
-  //         whileHover={{ scale: 1.03 }}
-  //         className="min-w-[260px] sm:min-w-[320px] bg-[#1e1e1e] border border-gray-700 rounded-xl p-5 hover:bg-[#2a2a2a] transition"
-  //       >
-  //         <h4 className="text-lg font-semibold text-[#1f4edb] mb-2">
-  //           {t.data?.triviaName}
-  //         </h4>
-  //         <p className="text-gray-400 text-sm mb-1">
-  //           🧩 {t.data?.subCards?.length || 0} questions
-  //         </p>
-  //         <p className="text-gray-500 text-xs">
-  //           📅 {new Date(t.data?.createdAt).toLocaleDateString()}
-  //         </p>
-  //       </motion.div>
-  //     ))}
-  //   </div>
-  // );
-
   return (
     <div className="w-full min-h-screen bg-[#121212] text-white px-4 sm:px-10 py-10">
       <h1 className="text-3xl font-semibold text-center mb-10 text-[#1f4edb]">
         Latest News
       </h1>
 
-      <div className="flex flex-col gap-6">
+      {/* Centered container with max-width */}
+      <div className="flex flex-col gap-6 max-w-3xl mx-auto">
         {loading && newsList.length === 0 ? (
           <p className="text-center text-gray-400 py-10 animate-pulse">
             Fetching news...
@@ -135,14 +110,14 @@ const News = () => {
                 <motion.div
                   whileHover={{ scale: 1.01 }}
                   transition={{ duration: 0.2 }}
-                  className="cursor-pointer border border-gray-700 rounded-xl bg-[#2B2B2B]/60 hover:bg-[#2B2B2B] transition duration-200 overflow-hidden"
+                  className="cursor-pointer border border-gray-200 rounded-xl bg-white hover:bg-gray-50 shadow-lg hover:shadow-xl transition duration-200 overflow-hidden text-black"
                   onClick={() => setExpandedNews(isExpanded ? null : news)}
                 >
                   {imageSrc && (
                     <img
                       src={imageSrc}
                       alt="News thumbnail"
-                      className="w-full h-56 object-cover border-b border-gray-700"
+                      className="w-full h-56 object-cover border-b border-gray-200"
                     />
                   )}
 
@@ -152,11 +127,11 @@ const News = () => {
                       dangerouslySetInnerHTML={{ __html: news.heading }}
                     />
                     <p
-                      className="text-gray-400 text-sm mb-2"
+                      className="text-gray-700 text-sm mb-2"
                       dangerouslySetInnerHTML={{ __html: news.subHeading }}
                     />
                     <p
-                      className="text-gray-400 text-sm"
+                      className="text-gray-600 text-sm"
                       dangerouslySetInnerHTML={{ __html: news.smallContent }}
                     />
 
@@ -170,7 +145,7 @@ const News = () => {
 
                     <div className="mt-4 flex justify-end">
                       <button
-                        className="text-sm text-blue-400 hover:text-blue-300 transition"
+                        className="text-sm text-[#1f4edb] hover:text-[#163ac3] transition"
                         onClick={(e) => {
                           e.stopPropagation();
                           setExpandedNews(isExpanded ? null : news);
@@ -187,7 +162,7 @@ const News = () => {
                           animate={{ opacity: 1, height: "auto" }}
                           exit={{ opacity: 0, height: 0 }}
                           transition={{ duration: 0.4 }}
-                          className="mt-4 border-t border-gray-700 pt-4 text-gray-300 text-sm leading-relaxed"
+                          className="mt-4 border-t border-gray-300 pt-4 text-gray-700 text-sm leading-relaxed"
                         >
                           <div
                             dangerouslySetInnerHTML={{
@@ -200,7 +175,6 @@ const News = () => {
                   </div>
                 </motion.div>
 
-                {/* 🧠 Insert Trivia Section after every 2 news */}
                 {(index + 1) % 2 === 0 && triviaList.length > 0 && (
                   <TriviaSection triviaList={triviaList.slice(0, 1)} />
                 )}

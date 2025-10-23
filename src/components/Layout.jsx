@@ -11,12 +11,14 @@ const Layout = () => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const navigate = useNavigate();
   const profileRef = useRef(null);
-
+const role = localStorage.getItem("role");
   // Scroll effect
   useEffect(() => {
+  
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
+    
   }, []);
 
   // Mouse background animation
@@ -78,8 +80,8 @@ const Layout = () => {
       {/* Navbar */}
       <header
         className={`fixed w-full z-50 transition-all duration-500 ${isScrolled
-          ? "bg-neutral-950/90 backdrop-blur-xl border-b border-neutral-800 shadow-lg shadow-neutral-900/40"
-          : "bg-transparent"
+            ? "bg-neutral-950/90 backdrop-blur-xl border-b border-neutral-800 shadow-lg shadow-neutral-900/40"
+            : "bg-transparent"
           }`}
       >
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -117,13 +119,44 @@ const Layout = () => {
               {user ? (
                 <>
                   {user.role === "user" && (
-                    <button
-                      onClick={() => navigate("/dashboard")}
-                      className="px-4 py-2 text-neutral-400 hover:text-emerald-400 transition-all duration-300 rounded-xl hover:bg-neutral-800"
-                    >
-                      Dashboard
-                    </button>
+                    <>
+                      <button
+                        onClick={() => navigate("/dashboard")}
+                        className="px-4 py-2 text-neutral-400 hover:text-emerald-400 transition-all duration-300 rounded-xl hover:bg-neutral-800"
+                      >
+                        Dashboard
+                      </button>
+
+                      <button
+                        onClick={() => navigate("/discover")}
+                        className="px-4 py-2 text-neutral-400 hover:text-blue-400 transition-all duration-300 rounded-xl hover:bg-neutral-800"
+                      >
+                        Discover
+                      </button>
+
+                      <button
+                        onClick={() => navigate("/feed")}
+                        className="px-4 py-2 text-neutral-400 hover:text-purple-400 transition-all duration-300 rounded-xl hover:bg-neutral-800"
+                      >
+                        Knowalledge Feed
+                      </button>
+
+                      <button
+                        onClick={() => navigate("/quiz")}
+                        className="px-4 py-2 text-neutral-400 hover:text-pink-400 transition-all duration-300 rounded-xl hover:bg-neutral-800"
+                      >
+                        Quiz
+                      </button>
+
+                      <button
+                        onClick={() => navigate("/quiz-stack")}
+                        className="px-4 py-2 text-neutral-400 hover:text-cyan-400 transition-all duration-300 rounded-xl hover:bg-neutral-800"
+                      >
+                        Quiz Stack
+                      </button>
+                    </>
                   )}
+
                   {user.role === "superadmin" && (
                     <button
                       onClick={() => navigate("/admin")}
@@ -136,9 +169,7 @@ const Layout = () => {
                   {/* Profile Icon with Click Dropdown */}
                   <div className="relative" ref={profileRef}>
                     <button
-                      onClick={() =>
-                        setIsProfileMenuOpen((prev) => !prev)
-                      }
+                      onClick={() => setIsProfileMenuOpen((prev) => !prev)}
                       className="w-10 h-10 rounded-full bg-neutral-800 flex items-center justify-center text-neutral-300 hover:text-blue-400 hover:bg-neutral-700 transition-all duration-300"
                     >
                       <svg
@@ -254,16 +285,59 @@ const Layout = () => {
               {user ? (
                 <>
                   {user.role === "user" && (
-                    <button
-                      onClick={() => {
-                        navigate("/dashboard");
-                        setIsMobileMenuOpen(false);
-                      }}
-                      className="px-4 py-2 text-left text-neutral-300 hover:text-emerald-400 hover:bg-neutral-800 rounded-xl transition-all"
-                    >
-                      Dashboard
-                    </button>
+                    <>
+                      <button
+                        onClick={() => {
+                          navigate("/dashboard");
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className="px-4 py-2 text-left text-neutral-300 hover:text-emerald-400 hover:bg-neutral-800 rounded-xl transition-all"
+                      >
+                        Dashboard
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          navigate("/discover");
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className="px-4 py-2 text-left text-neutral-300 hover:text-blue-400 hover:bg-neutral-800 rounded-xl transition-all"
+                      >
+                        Discover
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          navigate("/feed");
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className="px-4 py-2 text-left text-neutral-300 hover:text-purple-400 hover:bg-neutral-800 rounded-xl transition-all"
+                      >
+                        Knowalledge Feed
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          navigate("/quiz");
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className="px-4 py-2 text-left text-neutral-300 hover:text-pink-400 hover:bg-neutral-800 rounded-xl transition-all"
+                      >
+                        Quiz
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          navigate("/quiz-stack");
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className="px-4 py-2 text-left text-neutral-300 hover:text-cyan-400 hover:bg-neutral-800 rounded-xl transition-all"
+                      >
+                        Quiz Stack
+                      </button>
+                    </>
                   )}
+
                   {user.role === "superadmin" && (
                     <button
                       onClick={() => {
@@ -275,6 +349,7 @@ const Layout = () => {
                       Admin Panel
                     </button>
                   )}
+
                   <button
                     onClick={() => {
                       navigate("/profile");
@@ -317,6 +392,7 @@ const Layout = () => {
           </div>
         )}
       </header>
+
 
       {/* Main Content */}
       <main className="flex-1 pt-20 relative z-10">
