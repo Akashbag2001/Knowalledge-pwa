@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-toastify";
 import useHttp from "../../api/useHttp";
 import TriviaSection from "./TriviaSection";
+import { CiHeart } from "react-icons/ci";
+import { FaHeart } from "react-icons/fa";
 
 const News = () => {
   const { sendRequest, loading } = useHttp();
@@ -32,7 +34,6 @@ const News = () => {
 
       if (response.success) {
         const feed = response.feed || [];
-
         const newsOnly = feed.filter((item) => !item.type);
         const triviaOnly = feed.filter((item) => item.type === "trivia");
 
@@ -44,9 +45,7 @@ const News = () => {
           });
           setTriviaList((prev) => {
             const ids = new Set(prev.map((t) => t.data?._id));
-            const filtered = triviaOnly.filter(
-              (t) => !ids.has(t.data?._id)
-            );
+            const filtered = triviaOnly.filter((t) => !ids.has(t.data?._id));
             return [...prev, ...filtered];
           });
         } else {
@@ -74,7 +73,7 @@ const News = () => {
     const handleScroll = () => {
       if (
         window.innerHeight + document.documentElement.scrollTop + 50 >=
-          document.documentElement.scrollHeight &&
+        document.documentElement.scrollHeight &&
         !loadingMore &&
         hasMore
       ) {
@@ -86,13 +85,43 @@ const News = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [cursor, loadingMore, hasMore, fetchFeed]);
 
+  // Like Handler
+  // Like Toggle Handler
+  const handleLike = (e, newsId) => {
+    e.stopPropagation();
+    setNewsList((prev) =>
+      prev.map((item) =>
+        item._id === newsId ? { ...item, liked: !item.liked } : item
+      )
+    );
+  };
+
+
+  // Share Handler
+  const handleShare = (e, news) => {
+    e.stopPropagation();
+    const shareData = {
+      title: news.heading.replace(/<[^>]*>/g, ""),
+      text: news.subHeading?.replace(/<[^>]*>/g, "") || "Check out this news!",
+      url: window.location.href,
+    };
+
+    if (navigator.share) {
+      navigator.share(shareData).catch(() => toast.info("Sharing canceled"));
+    } else {
+      navigator.clipboard
+        .writeText(`${shareData.title} - ${shareData.url}`)
+        .then(() => toast.success("🔗 Link copied to clipboard!"))
+        .catch(() => toast.error("Failed to copy link"));
+    }
+  };
+
   return (
-    <div className="w-full min-h-screen bg-[#121212] text-white px-4 sm:px-10 py-10">
+    <div className="w-full min-h-screen bg-gray-300 text-white px-4 sm:px-10 py-10">
       <h1 className="text-3xl font-semibold text-center mb-10 text-[#1f4edb]">
         Latest News
       </h1>
 
-      {/* Centered container with max-width */}
       <div className="flex flex-col gap-6 max-w-3xl mx-auto">
         {loading && newsList.length === 0 ? (
           <p className="text-center text-gray-400 py-10 animate-pulse">
@@ -141,6 +170,29 @@ const News = () => {
                       {news.topics && news.topics.length > 0 && (
                         <span>📰 {news.topics.join(", ")}</span>
                       )}
+                    </div>
+
+                    {/* Like + Share Section */}
+                    <div className="flex items-center justify-between mt-4 border-t pt-3 border-gray-200">
+                      <button
+                        className="flex items-center gap-1 transition"
+                        onClick={(e) => handleLike(e, news._id)}
+                      >
+                        {news.liked ? (
+                          <FaHeart className="text-red-500 transition-transform duration-200 scale-110" />
+                        ) : (
+                          <CiHeart className="text-gray-600 transition-transform duration-200" />
+                        )}
+                      </button>
+
+
+
+                      <button
+                        className="flex items-center gap-1 text-gray-600 hover:text-[#1f4edb] transition"
+                        onClick={(e) => handleShare(e, news)}
+                      >
+                        📤 Share
+                      </button>
                     </div>
 
                     <div className="mt-4 flex justify-end">

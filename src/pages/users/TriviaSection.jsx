@@ -10,7 +10,7 @@ const TriviaSection = ({ triviaList }) => {
 
   return (
     <div className="w-full mt-10">
-      <h2 className="text-2xl font-bold text-white mb-4">🧠 Trivia</h2>
+      {/* <h2 className="text-2xl font-bold text-white mb-4">🧠 Trivia</h2> */}
 
       {/* Each Trivia Block */}
       {triviaList.map((triviaItem) => {
